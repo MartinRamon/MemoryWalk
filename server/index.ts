@@ -1,13 +1,12 @@
 import { createServer } from 'node:http'
 import { env, loadDotEnv } from './env.ts'
-import { readSource } from './extract.ts'
 import { geocodeInRome } from './geo.ts'
 import { HttpError, readJson, sendEmpty, sendJson } from './http.ts'
-import { extractPlace } from './llm.ts'
+import { runIngest } from './ingest.ts'
+import { createJob, getJob } from './jobs.ts'
 import { loadCityPois } from './overpass.ts'
 import { optString, rateLimit, reqLat, reqLng, reqString, resolveCorsOrigin } from './security.ts'
 import { loadWikiSnippet } from './wiki.ts'
-import type { UrlIngestDraft } from '../src/types/ingest.ts'
 
 loadDotEnv()
 
@@ -102,63 +101,26 @@ createServer(async (req, res) => {
       return
     }
 
+    // Arranca el trabajo de ingesta y responde de inmediato con su id.
+    // El transcript + extracción corren en segundo plano (ver /api/ingest/status).
     if (method === 'POST' && path === '/api/ingest/url') {
       rateLimit(req, 'ingest', 15, MINUTE)
       const body = await readJson<{ url?: unknown }>(req)
       const raw = reqString(body.url, 'url', 2048)
+      const jobId = createJob()
+      void runIngest(jobId, raw)
+      sendJson(res, 202, { jobId }, cors)
+      return
+    }
 
-      const source = await readSource(raw)
-      if (!source.caption && !source.location) {
-        sendJson(res, 422, {
-          error:
-            source.kind === 'instagram'
-              ? 'Instagram no ha dejado leer el pie de foto. Prueba un Reel público o un TikTok.'
-              : 'No hemos podido leer ese enlace.',
-        }, cors)
+    if (method === 'GET' && path.startsWith('/api/ingest/status/')) {
+      const id = decodeURIComponent(path.slice('/api/ingest/status/'.length))
+      const job = getJob(id)
+      if (!job) {
+        sendJson(res, 404, { error: 'Trabajo no encontrado o caducado.' }, cors)
         return
       }
-
-      const extracted = source.caption ? await extractPlace(source.caption) : {
-        name: '',
-        note: '',
-        dishes: [] as string[],
-        category: 'trattoria' as const,
-        extractor: 'heuristic' as const,
-      }
-
-      if (!extracted.name && !source.location) {
-        sendJson(res, 422, {
-          error: 'El vídeo no nombra un local claro. Prueba otro enlace.',
-          caption: source.caption,
-        }, cors)
-        return
-      }
-
-      let location = source.location
-      let geocodeSource: UrlIngestDraft['geocodeSource'] = location ? 'maps' : undefined
-      if (!location && extracted.name) {
-        location = await geocodeInRome(extracted.name, extracted.neighborhood)
-        if (location) geocodeSource = 'nominatim'
-      }
-
-      const draft: UrlIngestDraft = {
-        sourceUrl: source.url,
-        sourceKind: source.kind,
-        caption: source.caption,
-        name: extracted.name,
-        note: extracted.note,
-        dishes: extracted.dishes,
-        category: extracted.category,
-        neighborhood: extracted.neighborhood,
-        location,
-        geocodeSource,
-        mapsUrl: source.mapsUrl,
-        extractor: extracted.extractor,
-        warning: location
-          ? undefined
-          : 'No encontramos el punto en Roma. Corrige el nombre y confirma; volveremos a buscar.',
-      }
-      sendJson(res, 200, { draft }, cors)
+      sendJson(res, 200, job, cors)
       return
     }
 

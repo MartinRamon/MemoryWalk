@@ -1,6 +1,6 @@
 import type { CityBbox, CityPoi, WikiSnippet } from '../types/city.ts'
 import type { GeoPoint } from '../types/models.ts'
-import type { UrlIngestDraft } from '../types/ingest.ts'
+import type { IngestJobStatus } from '../types/ingest.ts'
 
 async function readError(response: Response): Promise<string> {
   try {
@@ -12,15 +12,21 @@ async function readError(response: Response): Promise<string> {
   return `Error ${response.status}`
 }
 
-export async function ingestUrl(url: string): Promise<UrlIngestDraft> {
+export async function startIngest(url: string): Promise<string> {
   const response = await fetch('/api/ingest/url', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ url }),
   })
   if (!response.ok) throw new Error(await readError(response))
-  const payload = (await response.json()) as { draft: UrlIngestDraft }
-  return payload.draft
+  const payload = (await response.json()) as { jobId: string }
+  return payload.jobId
+}
+
+export async function getIngestStatus(jobId: string): Promise<IngestJobStatus> {
+  const response = await fetch(`/api/ingest/status/${encodeURIComponent(jobId)}`)
+  if (!response.ok) throw new Error(await readError(response))
+  return response.json() as Promise<IngestJobStatus>
 }
 
 export async function geocodePlace(query: string, neighborhood?: string): Promise<{ location: GeoPoint; geocodeSource: 'nominatim' }> {

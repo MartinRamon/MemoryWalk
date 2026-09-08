@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
+    "stt": "python sidecar/transcribe.py",
     "ingest": "tsx scripts/ingest-rome.ts"
   },
   "dependencies": {

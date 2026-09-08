@@ -6,6 +6,7 @@ export type UrlIngestDraft = {
   sourceUrl: string
   sourceKind: SourceKind
   caption: string
+  transcript?: string
   name: string
   note: string
   dishes: string[]
@@ -15,7 +16,19 @@ export type UrlIngestDraft = {
   geocodeSource?: 'maps' | 'nominatim'
   mapsUrl?: string
   extractor: 'grok' | 'heuristic'
+  transcribed?: boolean
   warning?: string
+}
+
+export const INGEST_STAGES = ['reading', 'transcribing', 'extracting', 'locating', 'done', 'error'] as const
+export type IngestStage = (typeof INGEST_STAGES)[number]
+
+export type IngestJobStatus = {
+  id: string
+  stage: IngestStage
+  status: 'running' | 'done' | 'error'
+  draft?: UrlIngestDraft
+  error?: string
 }
 
 export function isPlaceCategory(value: string): value is PlaceCategory {

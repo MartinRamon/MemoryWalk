@@ -1,11 +1,22 @@
-import { geocodePlace, ingestUrl } from '../lib/api.ts'
+import { geocodePlace, getIngestStatus, startIngest } from '../lib/api.ts'
 import { geocodeInRome, wait } from '../lib/geocode.ts'
 import { parseRecommendations, slugifyPlaceName } from '../lib/parseRecommendations.ts'
 import { CATEGORY_META } from '../lib/categories.ts'
 import { ROME, ROME_FOOD_COLLECTION } from '../data/catalog.ts'
 import { LOCAL_USER_ID, type Place } from '../types/models.ts'
-import type { UrlIngestDraft } from '../types/ingest.ts'
+import type { IngestStage, UrlIngestDraft } from '../types/ingest.ts'
 import { useMemo, useState } from 'react'
+
+const STAGE_LABEL: Record<IngestStage, string> = {
+  reading: 'Leyendo el enlace…',
+  transcribing: 'Transcribiendo el audio…',
+  extracting: 'Extrayendo el local…',
+  locating: 'Buscando en Roma…',
+  done: 'Listo',
+  error: 'Error',
+}
+
+const MAX_POLLS = 180
 
 type IngestViewProps = {
   existingNames: Set<string>
@@ -33,6 +44,7 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
   const [textBusy, setTextBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [draft, setDraft] = useState<UrlIngestDraft | null>(null)
+  const [stage, setStage] = useState<IngestStage | null>(null)
   const [text, setText] = useState('')
   const [log, setLog] = useState<string[]>([])
 
@@ -44,14 +56,29 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
     if (!value) return
     setUrlBusy(true)
     setError(null)
+    setDraft(null)
+    setStage('reading')
     try {
-      const next = await ingestUrl(value)
-      setDraft({ ...emptyDraft(), ...next })
+      const jobId = await startIngest(value)
+      for (let attempt = 0; attempt < MAX_POLLS; attempt += 1) {
+        await wait(1000)
+        const status = await getIngestStatus(jobId)
+        setStage(status.stage)
+        if (status.status === 'done' && status.draft) {
+          setDraft({ ...emptyDraft(), ...status.draft })
+          return
+        }
+        if (status.status === 'error') {
+          setError(status.error ?? 'No se pudo leer el enlace')
+          return
+        }
+      }
+      setError('La lectura está tardando demasiado. Inténtalo otra vez.')
     } catch (caught) {
-      setDraft(null)
       setError(caught instanceof Error ? caught.message : 'No se pudo leer el enlace')
     } finally {
       setUrlBusy(false)
+      setStage(null)
     }
   }
 
@@ -198,6 +225,13 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
         </button>
       </form>
 
+      {urlBusy && stage ? (
+        <p className="mt-4 text-sm text-ink-soft" role="status">
+          {STAGE_LABEL[stage]}
+          {stage === 'transcribing' ? ' Esto puede tardar unos segundos.' : ''}
+        </p>
+      ) : null}
+
       {error ? <p className="mt-4 text-sm text-[var(--color-danger)]">{error}</p> : null}
 
       {draft ? (
@@ -205,6 +239,7 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
           <p className="kicker">Borrador</p>
           <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
             {draft.sourceKind} · {draft.extractor === 'grok' ? 'Grok' : 'sin clave Grok'}
+            {draft.transcribed ? ' · audio transcrito' : ''}
           </p>
 
           <label className="mt-4 block text-xs uppercase tracking-[0.14em] text-ink-soft">
@@ -241,6 +276,13 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
 
           {draft.dishes.length > 0 ? (
             <p className="mt-3 text-sm text-ink-soft">Platos: {draft.dishes.join(', ')}</p>
+          ) : null}
+
+          {draft.transcript ? (
+            <p className="mt-4 text-sm leading-relaxed text-ink-soft">
+              <span className="kicker">Transcripción del audio</span>
+              {draft.transcript}
+            </p>
           ) : null}
 
           {draft.caption ? (
