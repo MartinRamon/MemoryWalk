@@ -1,4 +1,5 @@
-import { extractCoords, resolveMapsUrl } from './geo.ts'
+import type { CityBBox } from './cities.ts'
+import { extractCoords, ROME_BBOX, resolveMapsUrl } from './geo.ts'
 import { fetchWithTimeout, HttpError } from './http.ts'
 import type { GeoPoint } from '../src/types/models.ts'
 import type { SourceKind } from '../src/types/ingest.ts'
@@ -176,19 +177,19 @@ async function fetchWeb(url: string): Promise<string> {
   )
 }
 
-export async function readSource(rawUrl: string): Promise<SourcePayload> {
-  const cacheKey = rawUrl.trim().toLowerCase()
+export async function readSource(rawUrl: string, cityBbox: CityBBox = ROME_BBOX): Promise<SourcePayload> {
+  const cacheKey = `${cityBbox.minLat},${cityBbox.minLng}|${rawUrl.trim().toLowerCase()}`
   const hit = sourceCache.get(cacheKey)
   if (hit && Date.now() - hit.at < SOURCE_CACHE_MS) return hit.payload
 
-  const payload = await readSourceFresh(rawUrl)
+  const payload = await readSourceFresh(rawUrl, cityBbox)
   // Solo cacheamos lecturas útiles; un fallo transitorio (muro de login, timeout)
   // no debe quedar fijado durante horas.
   if (payload.caption || payload.location) sourceCache.set(cacheKey, { at: Date.now(), payload })
   return payload
 }
 
-async function readSourceFresh(rawUrl: string): Promise<SourcePayload> {
+async function readSourceFresh(rawUrl: string, cityBbox: CityBBox): Promise<SourcePayload> {
   let url = rawUrl.trim()
   if (!/^https?:\/\//i.test(url)) url = `https://${url}`
   const parsed = assertPublicUrl(url)
@@ -199,7 +200,7 @@ async function readSourceFresh(rawUrl: string): Promise<SourcePayload> {
   const kind = classifyUrl(url)
 
   if (kind === 'maps') {
-    const location = (await resolveMapsUrl(url)) ?? extractCoords(url)
+    const location = (await resolveMapsUrl(url, cityBbox)) ?? extractCoords(url, cityBbox)
     const caption = nameFromMapsUrl(url)
     return { url, kind, caption, location, mapsUrl: parsed.href }
   }

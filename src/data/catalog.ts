@@ -7,6 +7,7 @@ export const ROME: City = {
   country: 'Italia',
   center: { lat: 41.895, lng: 12.482 },
   zoom: 12.4,
+  bbox: { south: 41.78, west: 12.38, north: 42.0, east: 12.62 },
 }
 
 export const ROME_FOOD_COLLECTION: Collection = {

@@ -12,10 +12,12 @@ import { CITY_KIND_META } from '../lib/city.ts'
 import { haversineMeters, nearbyPlaces } from '../lib/geo.ts'
 import { useCityLayer } from '../lib/useCityLayer.ts'
 import type { CityKind, CityPoi, MapSelection } from '../types/city.ts'
-import type { Memory, Place, PlaceCategory } from '../types/models.ts'
+import type { City, Memory, Place, PlaceCategory } from '../types/models.ts'
 import { useMemo, useState } from 'react'
 
 type MapScreenProps = {
+  cityConfig: City
+  citySlug: string
   places: Place[]
   placed: Memory[]
   pending: Memory[]
@@ -36,6 +38,8 @@ function isWideScreen(): boolean {
 }
 
 export function MapScreen({
+  cityConfig,
+  citySlug,
   places,
   placed,
   pending,
@@ -65,7 +69,7 @@ export function MapScreen({
     return null
   })
   const [pinningId, setPinningId] = useState<string | null>(null)
-  const city = useCityLayer(showCity, activeCityKinds)
+  const city = useCityLayer(showCity, activeCityKinds, citySlug)
 
   const counts = useMemo(() => {
     const next: Partial<Record<PlaceCategory, number>> = {}
@@ -215,6 +219,7 @@ export function MapScreen({
     <div className="map-shell">
       <div className="map-stage">
         <MapView
+          city={cityConfig}
           places={visiblePlaces}
           memories={visibleMemories}
           cityPois={showCity ? visibleCityPois : []}

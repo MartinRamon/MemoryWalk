@@ -42,11 +42,15 @@ export async function getIngestStatus(jobId: string): Promise<IngestJobStatus> {
   return response.json() as Promise<IngestJobStatus>
 }
 
-export async function geocodePlace(query: string, neighborhood?: string): Promise<{ location: GeoPoint; geocodeSource: 'nominatim' }> {
+export async function geocodePlace(
+  query: string,
+  neighborhood?: string,
+  city = 'roma',
+): Promise<{ location: GeoPoint; geocodeSource: 'nominatim' }> {
   const response = await fetch('/api/geocode', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ q: query, neighborhood }),
+    body: JSON.stringify({ q: query, neighborhood, city }),
   })
   if (!response.ok) throw new Error(await readError(response))
   return response.json() as Promise<{ location: GeoPoint; geocodeSource: 'nominatim' }>
@@ -54,7 +58,7 @@ export async function geocodePlace(query: string, neighborhood?: string): Promis
 
 export async function fetchCityPois(
   bbox: CityBbox,
-  options: { significant?: boolean; signal?: AbortSignal } = {},
+  options: { significant?: boolean; signal?: AbortSignal; city?: string } = {},
 ): Promise<CityPoi[]> {
   const params = new URLSearchParams({
     south: String(bbox.south),
@@ -63,6 +67,7 @@ export async function fetchCityPois(
     east: String(bbox.east),
   })
   if (options.significant) params.set('significant', '1')
+  if (options.city) params.set('city', options.city)
   const response = await fetch(`/api/city?${params}`, { signal: options.signal })
   if (!response.ok) throw new Error(await readError(response))
   const payload = (await response.json()) as { pois: CityPoi[] }

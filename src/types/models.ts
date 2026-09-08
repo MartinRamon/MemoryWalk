@@ -28,6 +28,8 @@ export type City = {
   country: string
   center: GeoPoint
   zoom: number
+  /** Recuadro geográfico de la ciudad (para geocode, capa OSM y validación). */
+  bbox: { south: number; west: number; north: number; east: number }
 }
 
 export type Collection = {

@@ -19,7 +19,7 @@ function viewportKey(viewport: CityViewport): string {
   ].join('|')
 }
 
-export function useCityLayer(enabled: boolean, kinds: Set<CityKind>) {
+export function useCityLayer(enabled: boolean, kinds: Set<CityKind>, city = 'roma') {
   const [viewport, setViewport] = useState<CityViewport | null>(null)
   const [pois, setPois] = useState<CityPoi[]>([])
   const [status, setStatus] = useState<CityLayerStatus>('idle')
@@ -53,6 +53,7 @@ export function useCityLayer(enabled: boolean, kinds: Set<CityKind>) {
       void fetchCityPois(current, {
         significant: current.zoom < 15,
         signal: controller.signal,
+        city,
       })
         .then((items) => {
           setPois(items)
@@ -72,7 +73,7 @@ export function useCityLayer(enabled: boolean, kinds: Set<CityKind>) {
       window.clearTimeout(timer)
       controller.abort()
     }
-  }, [enabled, queryKey])
+  }, [city, enabled, queryKey])
 
   const visible = useMemo(() => {
     if (kinds.size === 0) return pois

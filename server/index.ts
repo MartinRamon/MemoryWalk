@@ -1,6 +1,7 @@
 import { createServer } from 'node:http'
+import { getCity, type ServerCity } from './cities.ts'
 import { env, loadDotEnv } from './env.ts'
-import { geocodeInRome } from './geo.ts'
+import { geocodeInCity } from './geo.ts'
 import { HttpError, readJson, sendEmpty, sendJson } from './http.ts'
 import { runIngest } from './ingest.ts'
 import { createJob, getJob } from './jobs.ts'
@@ -16,6 +17,13 @@ const MINUTE = 60_000
 
 function pathnameOf(url: string): string {
   return new URL(url, `http://127.0.0.1:${PORT}`).pathname
+}
+
+// Sin parámetro city → Roma (por defecto). Slug explícito desconocido → 400.
+function cityFrom(slug: string | undefined): ServerCity {
+  const city = getCity(slug)
+  if (!city) throw new HttpError(400, 'Ciudad no soportada.')
+  return city
 }
 
 createServer(async (req, res) => {
@@ -68,18 +76,22 @@ createServer(async (req, res) => {
       rateLimit(req, 'geocode', 40, MINUTE)
       let q: string
       let neighborhood: string | undefined
+      let citySlug: string | undefined
       if (method === 'GET') {
         const query = new URL(req.url ?? '/', `http://127.0.0.1:${PORT}`)
         q = reqString(query.searchParams.get('q'), 'q', 200)
         neighborhood = optString(query.searchParams.get('neighborhood'), 'neighborhood', 120)
+        citySlug = optString(query.searchParams.get('city'), 'city', 40)
       } else {
-        const body = await readJson<{ q?: unknown; neighborhood?: unknown }>(req)
+        const body = await readJson<{ q?: unknown; neighborhood?: unknown; city?: unknown }>(req)
         q = reqString(body.q, 'q', 200)
         neighborhood = optString(body.neighborhood, 'neighborhood', 120)
+        citySlug = optString(body.city, 'city', 40)
       }
-      const location = await geocodeInRome(q, neighborhood)
+      const city = cityFrom(citySlug)
+      const location = await geocodeInCity(q, city, neighborhood)
       if (!location) {
-        sendJson(res, 404, { error: 'No encontramos coordenadas en Roma para ese nombre.' }, cors)
+        sendJson(res, 404, { error: `No encontramos coordenadas en ${city.name} para ese nombre.` }, cors)
         return
       }
       sendJson(res, 200, { location, geocodeSource: 'nominatim' }, cors)
@@ -94,7 +106,8 @@ createServer(async (req, res) => {
       const north = reqLat(Number(query.searchParams.get('north')), 'north')
       const east = reqLng(Number(query.searchParams.get('east')), 'east')
       const significant = query.searchParams.get('significant') === '1'
-      const pois = await loadCityPois({ south, west, north, east }, significant)
+      const city = cityFrom(optString(query.searchParams.get('city'), 'city', 40))
+      const pois = await loadCityPois({ south, west, north, east }, significant, city.bbox)
       sendJson(res, 200, { pois }, cors)
       return
     }
@@ -117,10 +130,11 @@ createServer(async (req, res) => {
     // El transcript + extracción corren en segundo plano (ver /api/ingest/status).
     if (method === 'POST' && path === '/api/ingest/url') {
       rateLimit(req, 'ingest', 15, MINUTE)
-      const body = await readJson<{ url?: unknown }>(req)
+      const body = await readJson<{ url?: unknown; city?: unknown }>(req)
       const raw = reqString(body.url, 'url', 2048)
+      const city = cityFrom(optString(body.city, 'city', 40))
       const jobId = createJob()
-      void runIngest(jobId, raw)
+      void runIngest(jobId, raw, city)
       sendJson(res, 202, { jobId }, cors)
       return
     }

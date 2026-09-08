@@ -1,20 +1,20 @@
 import type { GeoPoint } from '../src/types/models.ts'
+import { ROME_CITY, type CityBBox, type ServerCity } from './cities.ts'
 import { fetchWithTimeout } from './http.ts'
 
-export const ROME_BBOX = { minLat: 41.78, maxLat: 42.0, minLng: 12.38, maxLng: 12.62 }
+export const ROME_BBOX = ROME_CITY.bbox
 
-const USER_AGENT = 'Viaj/0.1 (personal travel map; nominatim@viaj.local)'
+const USER_AGENT = 'MemoryWalk/0.1 (personal travel map; nominatim@memorywalk.local)'
 
-export function inRome(lat: number, lng: number): boolean {
-  return (
-    lat >= ROME_BBOX.minLat &&
-    lat <= ROME_BBOX.maxLat &&
-    lng >= ROME_BBOX.minLng &&
-    lng <= ROME_BBOX.maxLng
-  )
+export function inBbox(lat: number, lng: number, bbox: CityBBox): boolean {
+  return lat >= bbox.minLat && lat <= bbox.maxLat && lng >= bbox.minLng && lng <= bbox.maxLng
 }
 
-export function extractCoords(text: string): GeoPoint | null {
+export function inRome(lat: number, lng: number): boolean {
+  return inBbox(lat, lng, ROME_BBOX)
+}
+
+export function extractCoords(text: string, bbox: CityBBox = ROME_BBOX): GeoPoint | null {
   let decoded = text
   try {
     decoded = decodeURIComponent(text.replace(/\+/g, ' '))
@@ -38,7 +38,7 @@ export function extractCoords(text: string): GeoPoint | null {
       if (!match) continue
       const lat = Number(match[1])
       const lng = Number(match[2])
-      if (Number.isFinite(lat) && Number.isFinite(lng) && inRome(lat, lng)) {
+      if (Number.isFinite(lat) && Number.isFinite(lng) && inBbox(lat, lng, bbox)) {
         return { lat, lng }
       }
     }
@@ -56,15 +56,15 @@ const geocodeCache = new Map<string, { at: number; location: GeoPoint | null }>(
 
 let nominatimTail = Promise.resolve()
 
-async function nominatimOnce(query: string): Promise<GeoPoint | null> {
+async function nominatimOnce(query: string, city: ServerCity): Promise<GeoPoint | null> {
   const endpoint = new URL('https://nominatim.openstreetmap.org/search')
   endpoint.searchParams.set('format', 'jsonv2')
   endpoint.searchParams.set('limit', '1')
-  endpoint.searchParams.set('countrycodes', 'it')
-  endpoint.searchParams.set('q', query.includes('Roma') ? query : `${query}, Roma, Italia`)
+  endpoint.searchParams.set('countrycodes', city.countryCode)
+  endpoint.searchParams.set('q', query.includes(city.name) ? query : `${query}, ${city.name}, ${city.country}`)
   endpoint.searchParams.set(
     'viewbox',
-    `${ROME_BBOX.minLng},${ROME_BBOX.maxLat},${ROME_BBOX.maxLng},${ROME_BBOX.minLat}`,
+    `${city.bbox.minLng},${city.bbox.maxLat},${city.bbox.maxLng},${city.bbox.minLat}`,
   )
   endpoint.searchParams.set('bounded', '1')
 
@@ -77,22 +77,22 @@ async function nominatimOnce(query: string): Promise<GeoPoint | null> {
   if (!first) return null
   const lat = Number(first.lat)
   const lng = Number(first.lon)
-  if (!Number.isFinite(lat) || !Number.isFinite(lng) || !inRome(lat, lng)) return null
+  if (!Number.isFinite(lat) || !Number.isFinite(lng) || !inBbox(lat, lng, city.bbox)) return null
   return { lat, lng }
 }
 
-export async function geocodeInRome(query: string, neighborhood?: string): Promise<GeoPoint | null> {
+export async function geocodeInCity(query: string, city: ServerCity, neighborhood?: string): Promise<GeoPoint | null> {
   const needle = [query.trim(), neighborhood?.trim()].filter(Boolean).join(' ')
   if (!needle) return null
 
-  const key = needle.toLowerCase()
+  const key = `${city.slug}|${needle.toLowerCase()}`
   const hit = geocodeCache.get(key)
   if (hit) {
     const ttl = hit.location ? GEOCODE_OK_MS : GEOCODE_MISS_MS
     if (Date.now() - hit.at < ttl) return hit.location
   }
 
-  const run = nominatimTail.then(() => nominatimOnce(needle))
+  const run = nominatimTail.then(() => nominatimOnce(needle, city))
   nominatimTail = run.then(
     () => wait(1100),
     () => wait(1100),
@@ -102,20 +102,24 @@ export async function geocodeInRome(query: string, neighborhood?: string): Promi
   return location
 }
 
-export async function resolveMapsUrl(url: string): Promise<GeoPoint | null> {
+export function geocodeInRome(query: string, neighborhood?: string): Promise<GeoPoint | null> {
+  return geocodeInCity(query, ROME_CITY, neighborhood)
+}
+
+export async function resolveMapsUrl(url: string, bbox: CityBBox = ROME_BBOX): Promise<GeoPoint | null> {
   try {
     const head = await fetchWithTimeout(url, { method: 'GET', redirect: 'manual' })
     const location = head.headers.get('location')
     const hop = location ? new URL(location, url).href : url
-    const fromHop = extractCoords(hop)
+    const fromHop = extractCoords(hop, bbox)
     if (fromHop) return fromHop
 
     const followed = await fetchWithTimeout(url)
-    const fromFinal = extractCoords(followed.url)
+    const fromFinal = extractCoords(followed.url, bbox)
     if (fromFinal) return fromFinal
 
     const html = await followed.text()
-    return extractCoords(html.slice(0, 200_000))
+    return extractCoords(html.slice(0, 200_000), bbox)
   } catch {
     return null
   }

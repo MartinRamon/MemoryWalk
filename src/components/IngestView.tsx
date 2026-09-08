@@ -20,6 +20,7 @@ const STAGE_LABEL: Record<IngestStage, string> = {
 const MAX_POLLS = 180
 
 type IngestViewProps = {
+  city: string
   existingNames: Set<string>
   onBack: () => void
   onImported: (places: Place[]) => Promise<void>
@@ -39,7 +40,7 @@ function emptyDraft(): UrlIngestDraft {
   }
 }
 
-export function IngestView({ existingNames, onBack, onImported }: IngestViewProps) {
+export function IngestView({ city, existingNames, onBack, onImported }: IngestViewProps) {
   const [url, setUrl] = useState('')
   const [urlBusy, setUrlBusy] = useState(false)
   const [textBusy, setTextBusy] = useState(false)
@@ -107,7 +108,7 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
       // tenemos punto o el punto no venía de Maps (nombre corregido por el usuario).
       if (geocodeSource !== 'maps' || !location) {
         try {
-          const geo = await geocodePlace(name, draft.neighborhood)
+          const geo = await geocodePlace(name, draft.neighborhood, city)
           location = geo.location
           geocodeSource = geo.geocodeSource
         } catch (geoError) {
@@ -160,7 +161,7 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
           })
           continue
         }
-        const location = await geocodeInRome(item.query)
+        const location = await geocodeInRome(item.query, undefined, city)
         if (!location) {
           setLog((current) => {
             const next = [...current]

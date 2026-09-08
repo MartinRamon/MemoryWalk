@@ -1,3 +1,4 @@
+import type { CityBBox } from './cities.ts'
 import { ROME_BBOX } from './geo.ts'
 import { fetchWithTimeout } from './http.ts'
 import type { CityBbox, CityKind, CityPoi } from '../src/types/city.ts'
@@ -16,11 +17,11 @@ type CacheEntry = { at: number; pois: CityPoi[] }
 const cache = new Map<string, CacheEntry>()
 const inflight = new Map<string, Promise<CityPoi[]>>()
 
-export function clipCityBbox(raw: CityBbox): CityBbox | null {
-  const south = Math.max(raw.south, ROME_BBOX.minLat)
-  const west = Math.max(raw.west, ROME_BBOX.minLng)
-  const north = Math.min(raw.north, ROME_BBOX.maxLat)
-  const east = Math.min(raw.east, ROME_BBOX.maxLng)
+export function clipCityBbox(raw: CityBbox, cityBbox: CityBBox = ROME_BBOX): CityBbox | null {
+  const south = Math.max(raw.south, cityBbox.minLat)
+  const west = Math.max(raw.west, cityBbox.minLng)
+  const north = Math.min(raw.north, cityBbox.maxLat)
+  const east = Math.min(raw.east, cityBbox.maxLng)
   if (north <= south || east <= west) return null
   if (north - south > MAX_SPAN || east - west > MAX_SPAN) return null
   return { south, west, north, east }
@@ -195,8 +196,12 @@ function rank(poi: CityPoi): number {
   return score
 }
 
-export async function loadCityPois(bbox: CityBbox, significant: boolean): Promise<CityPoi[]> {
-  const clipped = clipCityBbox(bbox)
+export async function loadCityPois(
+  bbox: CityBbox,
+  significant: boolean,
+  cityBbox: CityBBox = ROME_BBOX,
+): Promise<CityPoi[]> {
+  const clipped = clipCityBbox(bbox, cityBbox)
   if (!clipped) return []
 
   const key = cacheKey(clipped, significant)

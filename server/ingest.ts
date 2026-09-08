@@ -1,5 +1,6 @@
+import { ROME_CITY, type ServerCity } from './cities.ts'
 import { readSource } from './extract.ts'
-import { geocodeInRome } from './geo.ts'
+import { geocodeInCity } from './geo.ts'
 import { HttpError } from './http.ts'
 import { failJob, finishJob, setStage } from './jobs.ts'
 import { extractPlace, type ExtractedPlace } from './llm.ts'
@@ -23,10 +24,10 @@ function emptyExtract(): ExtractedPlace {
  * reading → transcribing → extracting → locating → done/error.
  * La transcripción es un extra: si falla, seguimos con el pie de foto.
  */
-export async function runIngest(jobId: string, rawUrl: string): Promise<void> {
+export async function runIngest(jobId: string, rawUrl: string, city: ServerCity = ROME_CITY): Promise<void> {
   try {
     setStage(jobId, 'reading')
-    const source = await readSource(rawUrl)
+    const source = await readSource(rawUrl, city.bbox)
 
     let transcript: string | null = null
     let transcriptFailed = false
@@ -55,7 +56,7 @@ export async function runIngest(jobId: string, rawUrl: string): Promise<void> {
     let location = source.location
     let geocodeSource: UrlIngestDraft['geocodeSource'] = location ? 'maps' : undefined
     if (!location && extracted.name) {
-      location = await geocodeInRome(extracted.name, extracted.neighborhood)
+      location = await geocodeInCity(extracted.name, city, extracted.neighborhood)
       if (location) geocodeSource = 'nominatim'
     }
 

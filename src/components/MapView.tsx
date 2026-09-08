@@ -1,13 +1,13 @@
-import { ROME } from '../data/catalog.ts'
 import { CITY_KIND_META } from '../lib/city.ts'
 import { CATEGORY_META } from '../lib/categories.ts'
 import type { CityPoi, CityViewport, MapSelection } from '../types/city.ts'
-import { isPlacedMemory, type Memory, type Place } from '../types/models.ts'
+import { isPlacedMemory, type City, type Memory, type Place } from '../types/models.ts'
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, addProtocol, removeProtocol } from 'maplibre-gl'
 import type { MapMouseEvent, StyleSpecification } from 'maplibre-gl'
 import { useEffect, useRef } from 'react'
 
 type MapViewProps = {
+  city: City
   places: Place[]
   memories: Memory[]
   cityPois: CityPoi[]
@@ -113,6 +113,7 @@ function memoryElement(memory: Memory, url: string | undefined, selected: boolea
 }
 
 export function MapView({
+  city,
   places,
   memories,
   cityPois,
@@ -150,8 +151,8 @@ export function MapView({
     const map = new MapLibreMap({
       container: containerRef.current,
       style: rasterStyle(),
-      center: [ROME.center.lng, ROME.center.lat],
-      zoom: preferCityStart ? 14.6 : ROME.zoom,
+      center: [city.center.lng, city.center.lat],
+      zoom: preferCityStart ? 14.6 : city.zoom,
     })
     map.addControl(new NavigationControl({ showCompass: false }), 'bottom-right')
     map.on('load', () => {
@@ -175,7 +176,7 @@ export function MapView({
       map.remove()
       mapRef.current = null
     }
-  }, [preferCityStart])
+  }, [city, preferCityStart])
 
   useEffect(() => {
     const map = mapRef.current

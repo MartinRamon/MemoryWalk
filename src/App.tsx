@@ -2,6 +2,7 @@ import { HomeView } from './components/HomeView.tsx'
 import { IngestView } from './components/IngestView.tsx'
 import { MapScreen } from './components/MapScreen.tsx'
 import { ROME, ROME_FOOD_COLLECTION } from './data/catalog.ts'
+import { getCity } from './data/cities.ts'
 import {
   cityLayerPath,
   homePath,
@@ -77,10 +78,13 @@ function MapRoute(props: MapProps & { initialShowCity?: boolean }) {
   const { city, placeId, memoryId } = useParams()
   const navigate = useNavigate()
   useTitle('Mapa — Roma')
-  if (!isKnownCity(city)) return <Navigate to={homePath()} replace />
+  const cityConfig = getCity(city)
+  if (!isKnownCity(city) || !cityConfig) return <Navigate to={homePath()} replace />
   return (
     <MapScreen
       key={`${placeId ?? ''}-${memoryId ?? ''}-${props.initialShowCity ? 'city' : 'map'}`}
+      cityConfig={cityConfig}
+      citySlug={city}
       places={props.places}
       placed={props.placed}
       pending={props.pending}
@@ -105,6 +109,7 @@ function IngestRoute(props: IngestProps) {
   if (!isKnownCity(city)) return <Navigate to={homePath()} replace />
   return (
     <IngestView
+      city={city}
       existingNames={props.existingNames}
       onBack={() => navigate(homePath(city))}
       onImported={async (incoming) => {
