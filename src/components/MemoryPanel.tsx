@@ -68,7 +68,9 @@ export function MemoryPanel({
 
       {!memory.hasGps ? (
         <p className="mt-3 text-sm text-ink-soft">
-          Este archivo no traía GPS. La ubicación es la que anclaste en el mapa.
+          {memory.gpsInherited
+            ? 'Este vídeo no traía GPS. Heredó la ubicación de una foto del mismo momento; puedes reanclarlo en el mapa.'
+            : 'Este archivo no traía GPS. La ubicación es la que anclaste en el mapa.'}
         </p>
       ) : null}
 

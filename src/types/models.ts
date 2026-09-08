@@ -72,6 +72,10 @@ export type Memory = {
   mimeType: string
   createdAt: string
   hasGps: boolean
+  /** Miniatura JPEG (data URL) para vídeos: primer fotograma capturado al importar. */
+  poster?: string
+  /** true si la ubicación se heredó de una foto del mismo intervalo, no de GPS ni ancla manual. */
+  gpsInherited?: boolean
 }
 
 export function isPlacedMemory(memory: Memory): memory is Memory & GeoPoint {

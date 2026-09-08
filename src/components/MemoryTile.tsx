@@ -15,8 +15,13 @@ export function MemoryTile({ memory, url, featured, compact, onOpen, onDelete }:
   return (
     <div className={`memory-tile ${featured ? 'is-featured' : ''} ${compact ? 'is-compact' : ''}`}>
       <button type="button" className="memory-tile__open" onClick={onOpen} aria-label={label}>
-        {url && memory.type === 'photo' ? (
+        {memory.type === 'photo' && url ? (
           <img src={url} alt="" />
+        ) : memory.type === 'video' && memory.poster ? (
+          <span className="memory-tile__video">
+            <img src={memory.poster} alt="" />
+            <span className="memory-tile__play" aria-hidden="true">▶</span>
+          </span>
         ) : (
           <span className="memory-tile__fallback">{memory.type === 'video' ? 'Vídeo' : 'Archivo'}</span>
         )}

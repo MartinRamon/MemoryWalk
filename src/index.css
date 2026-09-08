@@ -722,3 +722,39 @@ button:disabled {
   padding: 2rem;
   box-shadow: 0 10px 40px rgb(0 0 0 / 0.08);
 }
+
+/* Póster de vídeo en tarjetas y badge en marcadores */
+.memory-tile__video {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.memory-tile__play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 1.3rem;
+  text-shadow: 0 1px 4px rgb(0 0 0 / 0.6);
+  pointer-events: none;
+}
+
+.memory-pin.is-video {
+  position: relative;
+}
+
+.memory-pin.is-video::after {
+  content: "▶";
+  position: absolute;
+  left: 50%;
+  bottom: 1px;
+  transform: translateX(-50%);
+  font-size: 0.5rem;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.85);
+  pointer-events: none;
+}

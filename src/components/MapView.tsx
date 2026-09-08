@@ -99,11 +99,13 @@ function memoryElement(memory: Memory, url: string | undefined, selected: boolea
   button.type = 'button'
   button.className = `memory-pin${selected ? ' is-selected' : ''}`
   button.title = memory.filename
-  if (url && memory.type === 'photo') {
+  const thumb = memory.type === 'photo' ? url : memory.poster
+  if (thumb) {
     const img = document.createElement('img')
-    img.src = url
+    img.src = thumb
     img.alt = memory.caption || memory.filename
     button.append(img)
+    if (memory.type === 'video') button.classList.add('is-video')
   } else {
     button.textContent = memory.type === 'video' ? '▶' : '●'
   }
