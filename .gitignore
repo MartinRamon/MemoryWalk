@@ -26,5 +26,6 @@ dist-ssr
 
 # Sidecar Python
 sidecar/.venv/
+sidecar/test-audio.*
 __pycache__/
 *.pyc

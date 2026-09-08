@@ -1,11 +1,12 @@
-import { geocodePlace, getIngestStatus, startIngest } from '../lib/api.ts'
+import { fetchHealth, geocodePlace, getIngestStatus, startIngest } from '../lib/api.ts'
+import type { ApiHealth } from '../lib/api.ts'
 import { geocodeInRome, wait } from '../lib/geocode.ts'
 import { parseRecommendations, slugifyPlaceName } from '../lib/parseRecommendations.ts'
 import { CATEGORY_META } from '../lib/categories.ts'
 import { ROME, ROME_FOOD_COLLECTION } from '../data/catalog.ts'
 import { LOCAL_USER_ID, type Place } from '../types/models.ts'
 import type { IngestStage, UrlIngestDraft } from '../types/ingest.ts'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 const STAGE_LABEL: Record<IngestStage, string> = {
   reading: 'Leyendo el enlace…',
@@ -47,6 +48,13 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
   const [stage, setStage] = useState<IngestStage | null>(null)
   const [text, setText] = useState('')
   const [log, setLog] = useState<string[]>([])
+  const [health, setHealth] = useState<ApiHealth | null>(null)
+
+  useEffect(() => {
+    void fetchHealth()
+      .then(setHealth)
+      .catch(() => setHealth(null))
+  }, [])
 
   const textDrafts = useMemo(() => parseRecommendations(text), [text])
   const alreadyKnown = draft ? existingNames.has(draft.name.trim().toLowerCase()) : false
@@ -197,9 +205,22 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
       <p className="kicker mt-8">Ingestor</p>
       <h1 className="font-display text-4xl leading-tight text-ink md:text-5xl">Añadir desde un enlace</h1>
       <p className="mt-4 max-w-xl text-[1.05rem] leading-relaxed text-ink-soft">
-        Pega un TikTok o un Reel. Viaj lee el pie de foto, propone el local y lo busca en Roma.
-        Tú revisas el nombre y la nota, y confirmas para pintarlo.
+        Pega un TikTok o un Reel. Viaj lee el pie de foto, transcribe el audio si el sidecar está activo,
+        propone el local y lo busca en Roma. Tú revisas el nombre y la nota, y confirmas para pintarlo.
       </p>
+
+      {health ? (
+        <ul className="mt-4 flex flex-wrap gap-2 text-xs uppercase tracking-[0.12em] text-ink-soft" aria-label="Servicios del ingestor">
+          <li className="tag">{health.grok ? `Grok (${health.model})` : 'Extracción heurística (sin Grok)'}</li>
+          <li className="tag">
+            {health.transcriber === 'ready'
+              ? 'Transcripción de audio activa'
+              : health.transcriber === 'unreachable'
+                ? 'Transcripción no disponible (sidecar apagado)'
+                : 'Transcripción desactivada'}
+          </li>
+        </ul>
+      ) : null}
 
       <form
         className="mt-6 flex flex-col gap-3 sm:flex-row"
@@ -239,7 +260,7 @@ export function IngestView({ existingNames, onBack, onImported }: IngestViewProp
           <p className="kicker">Borrador</p>
           <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">
             {draft.sourceKind} · {draft.extractor === 'grok' ? 'Grok' : 'sin clave Grok'}
-            {draft.transcribed ? ' · audio transcrito' : ''}
+            {draft.transcribed ? ' · audio transcrito' : draft.transcriptFailed ? ' · transcripción fallida' : ''}
           </p>
 
           <label className="mt-4 block text-xs uppercase tracking-[0.14em] text-ink-soft">

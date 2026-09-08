@@ -17,6 +17,7 @@ export type UrlIngestDraft = {
   mapsUrl?: string
   extractor: 'grok' | 'heuristic'
   transcribed?: boolean
+  transcriptFailed?: boolean
   warning?: string
 }
 

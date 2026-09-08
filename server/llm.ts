@@ -37,22 +37,51 @@ function cleanCaption(caption: string): string {
     .trim()
 }
 
+function splitCombinedText(text: string): { caption: string; transcript: string } {
+  const marker = '[Transcripción del audio]'
+  const idx = text.indexOf(marker)
+  if (idx === -1) return { caption: text, transcript: '' }
+  return {
+    caption: text.slice(0, idx).trim(),
+    transcript: text.slice(idx + marker.length).trim(),
+  }
+}
+
+function nameFromTranscript(transcript: string): string {
+  const cues = [
+    /\bel tema es\s+([^.\n!?]{3,50})/i,
+    /\bvamos con(?: a)?\s+([^.\n!?]{3,50})/i,
+    /\bme gusta mucho(?: el)?\s+([^.\n!?]{3,50})/i,
+    /\ben\s+([A-ZÁÉÍÓÚÑ][\w'’àèéìòù. -]{2,50})/,
+  ]
+  for (const re of cues) {
+    const match = transcript.match(re)
+    const candidate = match?.[1]?.replace(/[.,!?]+$/g, '').trim()
+    if (candidate && candidate.length >= 3) return candidate.slice(0, 80)
+  }
+  return ''
+}
+
 function heuristicExtract(caption: string): ExtractedPlace {
-  const text = cleanCaption(caption)
+  const { caption: cap, transcript } = splitCombinedText(caption)
+  const primary = transcript || cap
+  const text = cleanCaption(primary)
+  const fromTranscript = transcript ? nameFromTranscript(transcript) : ''
   const quoted = text.match(/[“"«]([^”"»]{3,70})[”"»]/)
   const at = text.match(/\b(?:en|at|da|di|from)\s+([A-ZÁÉÍÓÚÑ][\w'’àèéìòù. -]{2,50})/)
   const hashtag = [...text.matchAll(/#([A-Za-z][A-Za-z0-9]{3,})/g)]
     .map((match) => match[1].replace(/([a-z])([A-Z])/g, '$1 $2'))
     .find((value) => /[A-Z]/.test(value) && value.length > 4)
 
-  const name = (quoted?.[1] ?? at?.[1] ?? hashtag ?? text.replace(/[#@].*$/, '').trim())
+  const name = (fromTranscript || quoted?.[1] || at?.[1] || hashtag || text.replace(/[#@].*$/, '').trim())
     .replace(/[.,!?]+$/g, '')
     .slice(0, 80)
     .trim()
 
+  const noteSource = transcript ? `${cap}\n\n${transcript}`.trim() : text
   return {
     name: name.length >= 3 ? name : '',
-    note: text.slice(0, 400),
+    note: cleanCaption(noteSource).slice(0, 400),
     dishes: [],
     category: categoryFromText(text),
     extractor: 'heuristic',

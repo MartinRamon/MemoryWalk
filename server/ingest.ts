@@ -3,7 +3,7 @@ import { geocodeInRome } from './geo.ts'
 import { HttpError } from './http.ts'
 import { failJob, finishJob, setStage } from './jobs.ts'
 import { extractPlace, type ExtractedPlace } from './llm.ts'
-import { transcribeAudio } from './transcribe.ts'
+import { transcribeAudio, transcriberEnabled } from './transcribe.ts'
 import type { UrlIngestDraft } from '../src/types/ingest.ts'
 
 /** Junta transcripción y pie de foto en un solo texto para la extracción. */
@@ -29,10 +29,12 @@ export async function runIngest(jobId: string, rawUrl: string): Promise<void> {
     const source = await readSource(rawUrl)
 
     let transcript: string | null = null
+    let transcriptFailed = false
     if (source.kind === 'tiktok' || source.kind === 'instagram') {
       setStage(jobId, 'transcribing')
       const result = await transcribeAudio(source.url)
       transcript = result?.text ?? null
+      if (!transcript && transcriberEnabled()) transcriptFailed = true
     }
 
     setStage(jobId, 'extracting')
@@ -57,12 +59,21 @@ export async function runIngest(jobId: string, rawUrl: string): Promise<void> {
       if (location) geocodeSource = 'nominatim'
     }
 
+    const warnings: string[] = []
+    if (transcriptFailed) {
+      warnings.push('No pudimos transcribir el audio; usamos solo el pie de foto.')
+    }
+    if (!location) {
+      warnings.push('No encontramos el punto en Roma. Corrige el nombre y confirma; volveremos a buscar.')
+    }
+
     const draft: UrlIngestDraft = {
       sourceUrl: source.url,
       sourceKind: source.kind,
       caption: source.caption,
       transcript: transcript ?? undefined,
       transcribed: Boolean(transcript),
+      transcriptFailed,
       name: extracted.name,
       note: extracted.note,
       dishes: extracted.dishes,
@@ -72,9 +83,7 @@ export async function runIngest(jobId: string, rawUrl: string): Promise<void> {
       geocodeSource,
       mapsUrl: source.mapsUrl,
       extractor: extracted.extractor,
-      warning: location
-        ? undefined
-        : 'No encontramos el punto en Roma. Corrige el nombre y confirma; volveremos a buscar.',
+      warning: warnings.length > 0 ? warnings.join(' ') : undefined,
     }
     finishJob(jobId, draft)
   } catch (error) {

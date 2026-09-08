@@ -2,6 +2,13 @@ import type { CityBbox, CityPoi, WikiSnippet } from '../types/city.ts'
 import type { GeoPoint } from '../types/models.ts'
 import type { IngestJobStatus } from '../types/ingest.ts'
 
+export type ApiHealth = {
+  ok: boolean
+  grok: boolean
+  model: string
+  transcriber: 'disabled' | 'unreachable' | 'ready'
+}
+
 async function readError(response: Response): Promise<string> {
   try {
     const payload = (await response.json()) as { error?: string }
@@ -10,6 +17,12 @@ async function readError(response: Response): Promise<string> {
     // Ignore parse errors.
   }
   return `Error ${response.status}`
+}
+
+export async function fetchHealth(): Promise<ApiHealth> {
+  const response = await fetch('/api/health')
+  if (!response.ok) throw new Error(await readError(response))
+  return response.json() as Promise<ApiHealth>
 }
 
 export async function startIngest(url: string): Promise<string> {

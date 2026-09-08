@@ -6,6 +6,7 @@ import { runIngest } from './ingest.ts'
 import { createJob, getJob } from './jobs.ts'
 import { loadCityPois } from './overpass.ts'
 import { optString, rateLimit, reqLat, reqLng, reqString, resolveCorsOrigin } from './security.ts'
+import { transcriberEnabled } from './transcribe.ts'
 import { loadWikiSnippet } from './wiki.ts'
 
 loadDotEnv()
@@ -44,10 +45,21 @@ createServer(async (req, res) => {
     }
 
     if (method === 'GET' && path === '/api/health') {
+      let transcriberUp = false
+      if (transcriberEnabled()) {
+        const base = env('TRANSCRIBER_URL', 'http://127.0.0.1:8788').replace(/\/$/, '')
+        try {
+          const probe = await fetch(`${base}/health`, { signal: AbortSignal.timeout(1500) })
+          transcriberUp = probe.ok
+        } catch {
+          transcriberUp = false
+        }
+      }
       sendJson(res, 200, {
         ok: true,
         grok: Boolean(env('XAI_API_KEY')),
         model: env('XAI_MODEL', 'grok-4.3'),
+        transcriber: transcriberEnabled() ? (transcriberUp ? 'ready' : 'unreachable') : 'disabled',
       }, cors)
       return
     }

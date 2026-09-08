@@ -46,7 +46,7 @@ def host_allowed(url: str) -> bool:
 
 
 def download_audio(url: str, out_dir: str) -> str:
-    opts = {
+    opts: dict = {
         "format": "bestaudio/best",
         "outtmpl": os.path.join(out_dir, "audio.%(ext)s"),
         "quiet": True,
