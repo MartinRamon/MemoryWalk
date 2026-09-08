@@ -1,0 +1,19 @@
+{
+  "name": "MemoryWalk",
+  "short_name": "MemoryWalk",
+  "description": "Guía personal de viajes: recomendaciones y recuerdos sobre un mapa.",
+  "lang": "es",
+  "start_url": "/roma",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f3eee4",
+  "theme_color": "#b5522a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
