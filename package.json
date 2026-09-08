@@ -10,6 +10,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "ingest": "tsx scripts/ingest-rome.ts"
   },
   "dependencies": {
@@ -30,6 +32,7 @@
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.13",
     "typescript": "~6.0.2",
-    "vite": "^8.2.2"
+    "vite": "^8.2.2",
+    "vitest": "^3.2.7"
   }
 }

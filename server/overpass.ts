@@ -61,7 +61,7 @@ function wikiTitle(wikipedia?: string): string {
   return (title ?? wikipedia).replaceAll('_', ' ').trim()
 }
 
-function classify(tags: Record<string, string>): CityKind | null {
+export function classify(tags: Record<string, string>): CityKind | null {
   if (tags.tourism === 'museum') return 'museum'
   if (tags.amenity === 'fountain' || tags.historic === 'fountain' || tags.natural === 'spring') {
     return 'fountain'
