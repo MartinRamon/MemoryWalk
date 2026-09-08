@@ -1,0 +1,65 @@
+import type { CityBbox, CityPoi, WikiSnippet } from '../types/city.ts'
+import type { GeoPoint } from '../types/models.ts'
+import type { UrlIngestDraft } from '../types/ingest.ts'
+
+async function readError(response: Response): Promise<string> {
+  try {
+    const payload = (await response.json()) as { error?: string }
+    if (payload.error) return payload.error
+  } catch {
+    // Ignore parse errors.
+  }
+  return `Error ${response.status}`
+}
+
+export async function ingestUrl(url: string): Promise<UrlIngestDraft> {
+  const response = await fetch('/api/ingest/url', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url }),
+  })
+  if (!response.ok) throw new Error(await readError(response))
+  const payload = (await response.json()) as { draft: UrlIngestDraft }
+  return payload.draft
+}
+
+export async function geocodePlace(query: string, neighborhood?: string): Promise<{ location: GeoPoint; geocodeSource: 'nominatim' }> {
+  const response = await fetch('/api/geocode', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ q: query, neighborhood }),
+  })
+  if (!response.ok) throw new Error(await readError(response))
+  return response.json() as Promise<{ location: GeoPoint; geocodeSource: 'nominatim' }>
+}
+
+export async function fetchCityPois(
+  bbox: CityBbox,
+  options: { significant?: boolean; signal?: AbortSignal } = {},
+): Promise<CityPoi[]> {
+  const params = new URLSearchParams({
+    south: String(bbox.south),
+    west: String(bbox.west),
+    north: String(bbox.north),
+    east: String(bbox.east),
+  })
+  if (options.significant) params.set('significant', '1')
+  const response = await fetch(`/api/city?${params}`, { signal: options.signal })
+  if (!response.ok) throw new Error(await readError(response))
+  const payload = (await response.json()) as { pois: CityPoi[] }
+  return payload.pois
+}
+
+export async function fetchWikiSnippet(input: {
+  wikipedia?: string
+  wikidata?: string
+}): Promise<WikiSnippet | null> {
+  if (!input.wikipedia && !input.wikidata) return null
+  const params = new URLSearchParams()
+  if (input.wikipedia) params.set('wikipedia', input.wikipedia)
+  if (input.wikidata) params.set('wikidata', input.wikidata)
+  const response = await fetch(`/api/wiki?${params}`)
+  if (!response.ok) throw new Error(await readError(response))
+  const payload = (await response.json()) as { snippet: WikiSnippet | null }
+  return payload.snippet
+}

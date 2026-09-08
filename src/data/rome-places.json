@@ -1,0 +1,668 @@
+[
+  {
+    "id": "rimessa-roscioli",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Rimessa Roscioli",
+    "category": "trattoria",
+    "note": "",
+    "mapsUrl": "https://maps.app.goo.gl/nzYJ63FrmG4Y4ZxG6",
+    "location": {
+      "lat": 41.8927925,
+      "lng": 12.4729617
+    },
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "roscioli",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Roscioli",
+    "category": "trattoria",
+    "note": "Una histórica tienda de delicatessen y restaurante con platos de pasta excepcionales.",
+    "mapsUrl": "https://maps.app.goo.gl/pRrWihXKjRSFMPuY6",
+    "location": {
+      "lat": 41.89422,
+      "lng": 12.4742602
+    },
+    "neighborhood": "Regola",
+    "tags": [
+      "deli"
+    ],
+    "dishes": [
+      "pasta"
+    ],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "cesare-al-casaletto",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Cesare al Casaletto",
+    "category": "trattoria",
+    "note": "Auténtica trattoria romana conocida por su cocina tradicional.",
+    "mapsUrl": "https://maps.app.goo.gl/fjtgusafAnKGcjtX8",
+    "location": {
+      "lat": 41.87685,
+      "lng": 12.44077
+    },
+    "neighborhood": "Gianicolense",
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "manual"
+  },
+  {
+    "id": "retrobottega",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Retrobottega",
+    "category": "trattoria",
+    "note": "",
+    "mapsUrl": "https://maps.app.goo.gl/NLBk6KQV3ASXaZWd6",
+    "location": {
+      "lat": 41.901672,
+      "lng": 12.4753765
+    },
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "colline-emiliane",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Colline Emiliane",
+    "category": "trattoria",
+    "note": "Famoso por su auténtica cocina emiliana, la mejor pasta casera del centro de Roma.",
+    "mapsUrl": "https://maps.app.goo.gl/4Z1z6zWTNWWe7sjM6",
+    "location": {
+      "lat": 41.9029795,
+      "lng": 12.4873924
+    },
+    "neighborhood": "Trevi",
+    "tags": [],
+    "dishes": [
+      "pasta casera emiliana"
+    ],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "larcangelo",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "L’Arcangelo",
+    "category": "trattoria",
+    "note": "",
+    "mapsUrl": "https://maps.app.goo.gl/gq8JyN87U8n54u1n9",
+    "location": {
+      "lat": 41.9065935,
+      "lng": 12.468639
+    },
+    "neighborhood": "Prati",
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "trattoria-trilussa",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Trattoria Trilussa",
+    "category": "trattoria",
+    "note": "Lugar encantador conocido por su cocina romana tradicional.",
+    "mapsUrl": "https://maps.app.goo.gl/TWKehLhyLV5nbD5f8",
+    "location": {
+      "lat": 41.89055,
+      "lng": 12.46985
+    },
+    "neighborhood": "Trastevere",
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "manual"
+  },
+  {
+    "id": "matricianella",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Matricianella",
+    "category": "trattoria",
+    "note": "Cerca de Via Condotti, es un restaurante familiar histórico que sirve auténtica cocina romana.",
+    "mapsUrl": "https://maps.app.goo.gl/fyRivaEv5XZyePcV9",
+    "location": {
+      "lat": 41.9037437,
+      "lng": 12.4774335
+    },
+    "neighborhood": "Campo Marzio",
+    "tags": [
+      "familiar"
+    ],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "felice-a-testaccio",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Felice a Testaccio",
+    "category": "trattoria",
+    "note": "Restaurante romano histórico y reconocido.",
+    "mapsUrl": "https://maps.app.goo.gl/hT71t6B9hNreQEKz8",
+    "location": {
+      "lat": 41.8785014,
+      "lng": 12.4774658
+    },
+    "neighborhood": "Testaccio",
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "testaccio-market",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Testaccio Market",
+    "category": "market",
+    "note": "Es un vibrante centro culinario y cultural en Roma, ubicado en el auténtico barrio de Testaccio. Lo recomiendo mucho a la hora del almuerzo.",
+    "mapsUrl": "https://maps.app.goo.gl/5zyREtS3ZAejCyGi9",
+    "location": {
+      "lat": 41.8776017,
+      "lng": 12.4735798
+    },
+    "neighborhood": "Testaccio",
+    "tags": [
+      "almuerzo"
+    ],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "angelina-a-testaccio",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Angelina a Testaccio",
+    "category": "trattoria",
+    "note": "Un verdadero sabor de la cocina romana con un encanto y ambiente rústico.",
+    "mapsUrl": "https://maps.app.goo.gl/ETxx2TaVBA9gE2we9",
+    "location": {
+      "lat": 41.8764,
+      "lng": 12.4751
+    },
+    "neighborhood": "Testaccio",
+    "tags": [
+      "rustico"
+    ],
+    "dishes": [],
+    "geocodeSource": "manual"
+  },
+  {
+    "id": "osteria-velodromo-vecchio",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Osteria del Velodromo Vecchio",
+    "category": "trattoria",
+    "note": "",
+    "mapsUrl": "https://maps.app.goo.gl/r9DWjyNyNmDAKfULA",
+    "location": {
+      "lat": 41.8705316,
+      "lng": 12.5332283
+    },
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "la-pergola",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "La Pergola",
+    "category": "michelin",
+    "note": "Un restaurante con 3 estrellas Michelin con impresionantes vistas, que ofrece alta cocina cerca del Vaticano. El mejor restaurante de Roma; muy caro.",
+    "mapsUrl": "https://maps.app.goo.gl/eLy7HZz6QzrFFE5V6",
+    "location": {
+      "lat": 41.9189,
+      "lng": 12.4472
+    },
+    "neighborhood": "Monte Mario",
+    "tags": [
+      "3-estrellas",
+      "vistas"
+    ],
+    "dishes": [],
+    "priceLevel": "luxury",
+    "geocodeSource": "manual"
+  },
+  {
+    "id": "il-sanlorenzo",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Il Sanlorenzo",
+    "category": "seafood",
+    "note": "El mejor de Roma, reconocido por su crudo (pescado crudo) y pasta con mariscos. Comer pescado en Roma es bastante caro.",
+    "mapsUrl": "https://maps.app.goo.gl/vPjhoCTX8J7EB9Wh6",
+    "location": {
+      "lat": 41.895034,
+      "lng": 12.4743321
+    },
+    "neighborhood": "Sant’Eustachio",
+    "tags": [],
+    "dishes": [
+      "crudo",
+      "pasta con mariscos"
+    ],
+    "priceLevel": "expensive",
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "pierluigi",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Pierluigi",
+    "category": "seafood",
+    "note": "Una institución de la gastronomía italiana, en el corazón de Roma, que ofrece mariscos y alta cocina. Muy caro.",
+    "mapsUrl": "https://maps.app.goo.gl/vRMGAXy4h3MJiMZH8",
+    "location": {
+      "lat": 41.8967194,
+      "lng": 12.4685353
+    },
+    "neighborhood": "Parione",
+    "tags": [],
+    "dishes": [
+      "mariscos"
+    ],
+    "priceLevel": "expensive",
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "pizza-re-trastevere",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Pizza Re in Trastevere",
+    "category": "pizza",
+    "note": "",
+    "mapsUrl": "https://maps.app.goo.gl/qAChyYr6HVioUxk37",
+    "location": {
+      "lat": 41.887875,
+      "lng": 12.4734358
+    },
+    "neighborhood": "Trastevere",
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "seu-pizza-illuminati",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Seu Pizza Illuminati",
+    "category": "pizza",
+    "note": "Fundado por Pier Daniele Seu y su esposa, Valeria Zuppardo. Ubicada en el histórico barrio de Porta Portese, esta pizzería ofrece un toque moderno a la pizza tradicional, manteniendo una fuerte conexión con el pasado.",
+    "mapsUrl": "https://maps.app.goo.gl/CvtUU7wbeVBybZvUA",
+    "location": {
+      "lat": 41.8796972,
+      "lng": 12.4683992
+    },
+    "neighborhood": "Porta Portese",
+    "tags": [
+      "moderna"
+    ],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "antico-forno-roscioli",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Antico Forno Roscioli",
+    "category": "pizza",
+    "note": "Pizza por porción. También es una parada de comida callejera.",
+    "mapsUrl": "https://maps.app.goo.gl/pwovvPoKMu48YU8n9",
+    "location": {
+      "lat": 41.8946562,
+      "lng": 12.4745854
+    },
+    "neighborhood": "Regola",
+    "tags": [
+      "street_food",
+      "al_taglio"
+    ],
+    "dishes": [
+      "pizza al taglio"
+    ],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "nativa-vegan",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Nativa Vegan",
+    "category": "vegan",
+    "note": "Restaurante vegano en Roma. Cocina natural con menú completamente vegano, incluyendo ricos postres. Uno de los mejores de la ciudad.",
+    "mapsUrl": "https://maps.app.goo.gl/h7HEeCQHBusMJ9E57",
+    "location": {
+      "lat": 41.8962,
+      "lng": 12.4278
+    },
+    "neighborhood": "Aurelio",
+    "tags": [
+      "postres"
+    ],
+    "dishes": [],
+    "geocodeSource": "manual"
+  },
+  {
+    "id": "romeow-cat-bistrot",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Romeow Cat Bistrot",
+    "category": "vegan",
+    "note": "Uno de los mejores veganos de la ciudad. Con gatos de verdad: chequea antes de ir.",
+    "mapsUrl": "https://maps.app.goo.gl/nrCkeFzWzuPH87SH9",
+    "location": {
+      "lat": 41.8705693,
+      "lng": 12.4816961
+    },
+    "neighborhood": "Ostiense",
+    "tags": [
+      "gatos"
+    ],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "il-margutta",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Il Margutta",
+    "category": "vegan",
+    "note": "Elegantes opciones vegetarianas y veganas en un ambiente de galería de arte.",
+    "location": {
+      "lat": 41.9087,
+      "lng": 12.4795
+    },
+    "neighborhood": "Campo Marzio",
+    "tags": [
+      "vegetariano",
+      "galeria"
+    ],
+    "dishes": [],
+    "geocodeSource": "manual"
+  },
+  {
+    "id": "ivegan",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "iVegan",
+    "category": "vegan",
+    "note": "Supermercado vegano con opciones de comida rápida como perritos calientes, hamburguesas y tostadas italianas.",
+    "location": {
+      "lat": 41.8961,
+      "lng": 12.5014
+    },
+    "neighborhood": "Esquilino",
+    "tags": [
+      "supermercado",
+      "comida-rapida"
+    ],
+    "dishes": [
+      "hot dogs",
+      "hamburguesas",
+      "tostadas"
+    ],
+    "geocodeSource": "manual"
+  },
+  {
+    "id": "grezzo-1",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Grezzo",
+    "category": "vegan",
+    "note": "Postres y chocolates crudos veganos. Bastante caro.",
+    "mapsUrl": "https://maps.app.goo.gl/PtYV3dcuHCnSwCAR9",
+    "location": {
+      "lat": 41.8954,
+      "lng": 12.4928
+    },
+    "neighborhood": "Monti",
+    "tags": [
+      "postres",
+      "chocolate"
+    ],
+    "dishes": [
+      "postres crudos"
+    ],
+    "priceLevel": "expensive",
+    "geocodeSource": "manual"
+  },
+  {
+    "id": "grezzo-2",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Grezzo",
+    "category": "vegan",
+    "note": "Postres y chocolates crudos veganos. Sucursal de Piazza Mattei. Bastante caro.",
+    "mapsUrl": "https://maps.app.goo.gl/6Z665NiPSf3bwcoMA",
+    "location": {
+      "lat": 41.8938535,
+      "lng": 12.4773215
+    },
+    "neighborhood": "Ghetto",
+    "tags": [
+      "postres",
+      "chocolate"
+    ],
+    "dishes": [
+      "postres crudos"
+    ],
+    "priceLevel": "expensive",
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "grachi-prati",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Gelateria dei Gracchi",
+    "category": "gelato",
+    "note": "El mejor helado clásico de Roma, produce helado fresco diariamente. La tienda original en Prati.",
+    "mapsUrl": "https://maps.app.goo.gl/crjXh6bBSVZmkMoN7",
+    "location": {
+      "lat": 41.9091879,
+      "lng": 12.46687
+    },
+    "neighborhood": "Prati",
+    "tags": [
+      "original"
+    ],
+    "dishes": [
+      "helado clásico"
+    ],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "grachi-centro",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Gelateria dei Gracchi",
+    "category": "gelato",
+    "note": "El mejor helado clásico de Roma. La pequeña tienda del centro.",
+    "mapsUrl": "https://maps.app.goo.gl/DbiU62kYrZovXUpi7",
+    "location": {
+      "lat": 41.9096515,
+      "lng": 12.4761148
+    },
+    "neighborhood": "Centro",
+    "tags": [
+      "centro"
+    ],
+    "dishes": [
+      "helado clásico"
+    ],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "come-il-latte",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Come Il Latte",
+    "category": "gelato",
+    "note": "Helado artesanal cerca de la puerta de Porta Pia.",
+    "mapsUrl": "https://maps.app.goo.gl/CtBKJRg54RowmiNg7",
+    "location": {
+      "lat": 41.9071234,
+      "lng": 12.496046
+    },
+    "neighborhood": "Porta Pia",
+    "tags": [
+      "artesanal"
+    ],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "la-romana-prati",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "La Romana",
+    "category": "gelato",
+    "note": "Una querida heladería con varias sucursales en Roma. Esta es la de Prati.",
+    "mapsUrl": "https://maps.app.goo.gl/7VPR4WFmqqB8x7AM9",
+    "location": {
+      "lat": 41.9091668,
+      "lng": 12.4706132
+    },
+    "neighborhood": "Prati",
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "la-romana-centro",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "La Romana",
+    "category": "gelato",
+    "note": "Una querida heladería con varias sucursales en Roma. Esta es la del centro.",
+    "mapsUrl": "https://maps.app.goo.gl/bKjYKdsx7tvU1Kkb7",
+    "location": {
+      "lat": 41.9001,
+      "lng": 12.4774
+    },
+    "neighborhood": "Centro",
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "manual"
+  },
+  {
+    "id": "supplizio",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Supplizio",
+    "category": "street_food",
+    "note": "Comida callejera abundante y asequible cerca de Campo de’ Fiori.",
+    "mapsUrl": "https://maps.app.goo.gl/86qTDhNSz9Qdn5jz6",
+    "location": {
+      "lat": 41.8974708,
+      "lng": 12.467903
+    },
+    "neighborhood": "Campo de’ Fiori",
+    "tags": [
+      "asequible"
+    ],
+    "dishes": [
+      "supplì"
+    ],
+    "priceLevel": "budget",
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "trapizzino",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Trapizzino",
+    "category": "street_food",
+    "note": "Bolsillos de pizza triangulares únicos rellenos con delicias romanas.",
+    "mapsUrl": "https://maps.app.goo.gl/oEVNd7t6BGhwE7rQ6",
+    "location": {
+      "lat": 41.879711,
+      "lng": 12.4737635
+    },
+    "neighborhood": "Testaccio",
+    "tags": [],
+    "dishes": [
+      "trapizzino"
+    ],
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "pizzarium-bonci",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Pizzarium Bonci",
+    "category": "street_food",
+    "note": "Reconocida panadería y pizza al taglio fundada por Gabriele Bonci. Bastante caro, revisa los precios antes de pedir.",
+    "mapsUrl": "https://maps.app.goo.gl/1KBdcpdhknWAHiYKA",
+    "location": {
+      "lat": 41.9066975,
+      "lng": 12.4466606
+    },
+    "neighborhood": "Trionfale",
+    "tags": [
+      "al_taglio"
+    ],
+    "dishes": [
+      "pizza al taglio"
+    ],
+    "priceLevel": "expensive",
+    "geocodeSource": "nominatim"
+  },
+  {
+    "id": "zia-rosetta",
+    "userId": "me",
+    "collectionId": "rome-food",
+    "cityId": "rome",
+    "name": "Zia Rosetta",
+    "category": "street_food",
+    "note": "",
+    "mapsUrl": "https://maps.app.goo.gl/e7ofV9ywT3PyGWoQA",
+    "location": {
+      "lat": 41.8955169,
+      "lng": 12.4934923
+    },
+    "tags": [],
+    "dishes": [],
+    "geocodeSource": "nominatim"
+  }
+]
