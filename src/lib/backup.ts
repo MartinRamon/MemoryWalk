@@ -2,11 +2,14 @@ import { strFromU8, strToU8, unzip, zip, type Unzipped, type Zippable } from 'ff
 import { listLocalPlaces, listMemories, putLocalPlaces, putMemory, readMemoryBlob } from './storage.ts'
 import type { Memory, Place } from '../types/models.ts'
 
-const MANIFEST = 'viaj-backup.json'
+const MANIFEST = 'memorywalk-backup.json'
 const BACKUP_VERSION = 1
+// Etiquetas de app aceptadas al importar. 'viaj' se mantiene por compatibilidad
+// con copias creadas antes del cambio de nombre.
+const APP_TAGS = ['memorywalk', 'viaj']
 
 type Manifest = {
-  app: 'viaj'
+  app: string
   version: number
   exportedAt: string
   places: Place[]
@@ -51,7 +54,7 @@ export async function exportBackup(): Promise<{ blob: Blob; filename: string; su
   }
 
   const manifest: Manifest = {
-    app: 'viaj',
+    app: 'memorywalk',
     version: BACKUP_VERSION,
     exportedAt: new Date().toISOString(),
     places,
@@ -64,7 +67,7 @@ export async function exportBackup(): Promise<{ blob: Blob; filename: string; su
   const stamp = new Date().toISOString().slice(0, 10)
   return {
     blob,
-    filename: `viaj-backup-${stamp}.zip`,
+    filename: `memorywalk-backup-${stamp}.zip`,
     summary: { places: places.length, memories: memories.length, media },
   }
 }
@@ -79,11 +82,12 @@ export async function importBackup(file: File): Promise<BackupSummary> {
   try {
     files = await unzipAsync(buffer)
   } catch {
-    throw new Error('No hemos podido abrir el archivo. ¿Seguro que es un .zip de Viaj?')
+    throw new Error('No hemos podido abrir el archivo. ¿Seguro que es un .zip de MemoryWalk?')
   }
 
-  const manifestBytes = files[MANIFEST]
-  if (!manifestBytes) throw new Error('El archivo no es una copia de Viaj válida (falta el manifiesto).')
+  // Copias nuevas usan memorywalk-backup.json; las antiguas, viaj-backup.json.
+  const manifestBytes = files[MANIFEST] ?? files['viaj-backup.json']
+  if (!manifestBytes) throw new Error('El archivo no es una copia de MemoryWalk válida (falta el manifiesto).')
 
   let manifest: Partial<Manifest>
   try {
@@ -91,7 +95,7 @@ export async function importBackup(file: File): Promise<BackupSummary> {
   } catch {
     throw new Error('El manifiesto de la copia está dañado.')
   }
-  if (manifest.app !== 'viaj' || !Array.isArray(manifest.places) || !Array.isArray(manifest.memories)) {
+  if (!manifest.app || !APP_TAGS.includes(manifest.app) || !Array.isArray(manifest.places) || !Array.isArray(manifest.memories)) {
     throw new Error('El manifiesto de la copia no tiene el formato esperado.')
   }
 

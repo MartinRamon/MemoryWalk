@@ -15,7 +15,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
-    console.error('Viaj: fallo de render', error, info.componentStack)
+    console.error('MemoryWalk: fallo de render', error, info.componentStack)
   }
 
   handleReset = (): void => {

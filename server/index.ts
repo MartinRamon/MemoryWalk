@@ -43,7 +43,7 @@ createServer(async (req, res) => {
     if (method === 'GET' && (path === '/' || path === '/api')) {
       sendJson(res, 200, {
         ok: true,
-        service: 'viaj-api',
+        service: 'memorywalk-api',
         ui: 'http://localhost:5173',
         health: '/api/health',
         city: '/api/city',
@@ -157,9 +157,9 @@ createServer(async (req, res) => {
       return
     }
     // Errores inesperados: se registran en el servidor, pero no se filtra el detalle al cliente.
-    console.error('viaj-api error:', error)
+    console.error('memorywalk-api error:', error)
     sendJson(res, 500, { error: 'Error interno del servidor.' }, cors)
   }
 }).listen(PORT, '127.0.0.1', () => {
-  console.log(`Viaj API http://127.0.0.1:${PORT}`)
+  console.log(`MemoryWalk API http://127.0.0.1:${PORT}`)
 })

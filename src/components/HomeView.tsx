@@ -63,7 +63,7 @@ export function HomeView({
         <div className="home-hero__copy">
           <p className="kicker">Roma · guía personal</p>
           <h1 className="font-display text-[2.6rem] leading-[0.95] tracking-tight text-ink md:text-6xl">
-            Viaj
+            MemoryWalk
           </h1>
           <p className="mt-4 max-w-lg text-[1.05rem] leading-relaxed text-ink-soft">
             Recomendaciones de comida, recuerdos anclados donde los viviste, y la ciudad:

@@ -1,7 +1,7 @@
-"""Viaj STT sidecar — transcribe el audio de un TikTok/Reel con faster-whisper.
+"""MemoryWalk STT sidecar — transcribe el audio de un TikTok/Reel con faster-whisper.
 
 Descarga solo el audio con yt-dlp y lo transcribe. El backend Node habla con este
-servicio por HTTP en localhost. Es opcional: si no está en marcha, Viaj sigue
+servicio por HTTP en localhost. Es opcional: si no está en marcha, MemoryWalk sigue
 funcionando leyendo el pie de foto.
 
 Arranque:
@@ -31,7 +31,7 @@ PORT = int(os.environ.get("STT_PORT", "8788"))
 # Solo estas plataformas: evita usar el sidecar como descargador genérico.
 ALLOWED_HOSTS = ("tiktok.com", "instagram.com", "instagr.am")
 
-app = FastAPI(title="viaj-stt")
+app = FastAPI(title="memorywalk-stt")
 # El modelo se carga una vez al arrancar (cargarlo por petición sería lentísimo).
 model = WhisperModel(MODEL_NAME, device=DEVICE, compute_type=COMPUTE)
 
@@ -98,7 +98,7 @@ def transcribe(req: TranscribeRequest) -> dict:
     if not host_allowed(req.url):
         raise HTTPException(status_code=400, detail="Solo se admiten enlaces de TikTok o Instagram.")
     try:
-        with tempfile.TemporaryDirectory(prefix="viaj-stt-") as tmp:
+        with tempfile.TemporaryDirectory(prefix="memorywalk-stt-") as tmp:
             audio_path = download_audio(req.url, tmp)
             return transcribe_file(audio_path)
     except HTTPException:

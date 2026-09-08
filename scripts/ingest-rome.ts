@@ -24,7 +24,7 @@ type GeoResult = {
 }
 
 const USER_AGENT =
-  'Viaj/0.1 (personal travel map; https://github.com/viaj; contact: local-dev)'
+  'MemoryWalk/0.1 (personal travel map; https://github.com/MartinRamon/MemoryWalk; contact: local-dev)'
 const COLLECTION_ID = 'rome-food'
 const CITY_ID = 'rome'
 const USER_ID = 'me'

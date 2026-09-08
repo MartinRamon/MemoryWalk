@@ -1,9 +1,9 @@
-# Viaj STT sidecar
+# MemoryWalk STT sidecar
 
 Transcribe el audio de un TikTok o Reel de Instagram y se lo devuelve al backend de
-Viaj. El flujo es: `yt-dlp` descarga solo el audio → `faster-whisper` lo transcribe.
+MemoryWalk. El flujo es: `yt-dlp` descarga solo el audio → `faster-whisper` lo transcribe.
 
-Es **opcional**. Si este servicio no está en marcha, Viaj sigue funcionando leyendo el
+Es **opcional**. Si este servicio no está en marcha, MemoryWalk sigue funcionando leyendo el
 pie de foto del enlace (el backend cae a ese modo automáticamente).
 
 ## Requisitos

@@ -1,7 +1,7 @@
 import { fetchWithTimeout } from './http.ts'
 import type { WikiSnippet } from '../src/types/city.ts'
 
-const USER_AGENT = 'Viaj/0.1 (personal travel map; wiki@viaj.local)'
+const USER_AGENT = 'MemoryWalk/0.1 (personal travel map; wiki@memorywalk.local)'
 const CACHE_MS = 24 * 60 * 60_000
 const cache = new Map<string, { at: number; snippet: WikiSnippet | null }>()
 

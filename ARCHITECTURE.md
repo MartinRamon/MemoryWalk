@@ -1,6 +1,6 @@
-# Viaj — arquitectura, sistemas y hoja de ruta
+# MemoryWalk — arquitectura, sistemas y hoja de ruta
 
-Viaj es una guía personal de turismo: recomendaciones (restaurantes, mercados), capa de ciudad (museos, fuentes, iglesias, esculturas) y recuerdos (fotos y vídeos geolocalizados) sobre un mapa. La ciudad piloto es Roma.
+MemoryWalk es una guía personal de turismo: recomendaciones (restaurantes, mercados), capa de ciudad (museos, fuentes, iglesias, esculturas) y recuerdos (fotos y vídeos geolocalizados) sobre un mapa. La ciudad piloto es Roma.
 
 Uso actual: **una sola persona**. La UI sigue en el navegador (Dexie + OPFS); un **backend mínimo en Node** geocodifica, resuelve links de Maps, lee TikTok/Reels y sirve la capa OSM + fichas de Wikipedia. El modelo de datos ya lleva `userId` y `collectionId` para poder pasar a producto (cuentas, sync, colecciones compartidas) sin reescribir el mapa.
 
@@ -48,7 +48,7 @@ Decisiones:
 
 - **Sin Google Maps SDK** en v1 (coste y ToS). Maps solo como enlace en la ficha.
 - **MapLibre fuera de `optimizeDeps`** de Vite: el worker empaquetado rompía las teselas.
-- Teselas por **protocolo custom (`viaj://`)** y `fetch`: el `<img>` nativo a veces llega vacío; el arrayBuffer no.
+- Teselas por **protocolo custom (`mw://`)** y `fetch`: el `<img>` nativo a veces llega vacío; el arrayBuffer no.
 
 ---
 
@@ -145,12 +145,12 @@ No hay React Router. `App` guarda `screen` y un posible `placeId` / `memoryId` p
 [`src/components/MapView.tsx`](src/components/MapView.tsx):
 
 - Estilo raster MapLibre (sin estilo vectorial de OpenFreeMap: dependía de un worker que Vite no resolvía bien).
-- Protocolo `viaj://esri/{z}/{y}/{x}` → `fetch` a Esri World Street Map.
+- Protocolo `mw://esri/{z}/{y}/{x}` → `fetch` a Esri World Street Map.
 - Marcadores HTML: pin de color por categoría; recuerdos como miniatura circular; ciudad como cuadrado con letra (M/F/I/E).
 - `fitBounds` al corpus, o `flyTo` si se llega desde una tarjeta o un punto OSM.
 - Toggle **Comida / Recuerdos / Ciudad**. Ciudad pide Overpass al mover el mapa (debounce ~420 ms).
 
-El proxy `/tiles` de Carto se eliminó: el mapa usa Esri vía `viaj://`.
+El proxy `/tiles` de Carto se eliminó: el mapa usa Esri vía `mw://`.
 
 ### 5.3 Ingestor
 

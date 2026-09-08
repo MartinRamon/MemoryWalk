@@ -3,7 +3,7 @@ import { ROME_BBOX } from './geo.ts'
 import { fetchWithTimeout } from './http.ts'
 import type { CityBbox, CityKind, CityPoi } from '../src/types/city.ts'
 
-const USER_AGENT = 'Viaj/0.1 (personal travel map; overpass@viaj.local)'
+const USER_AGENT = 'MemoryWalk/0.1 (personal travel map; overpass@memorywalk.local)'
 const ENDPOINTS = [
   'https://overpass-api.de/api/interpreter',
   'https://overpass.kumi.systems/api/interpreter',

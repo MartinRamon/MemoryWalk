@@ -92,7 +92,7 @@ export async function runIngest(jobId: string, rawUrl: string, city: ServerCity 
       failJob(jobId, error.message)
       return
     }
-    console.error('viaj-api ingest error:', error)
+    console.error('memorywalk-api ingest error:', error)
     failJob(jobId, 'No se pudo procesar el enlace.')
   }
 }

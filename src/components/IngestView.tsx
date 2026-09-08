@@ -206,7 +206,7 @@ export function IngestView({ city, existingNames, onBack, onImported }: IngestVi
       <p className="kicker mt-8">Ingestor</p>
       <h1 className="font-display text-4xl leading-tight text-ink md:text-5xl">Añadir desde un enlace</h1>
       <p className="mt-4 max-w-xl text-[1.05rem] leading-relaxed text-ink-soft">
-        Pega un TikTok o un Reel. Viaj lee el pie de foto, transcribe el audio si el sidecar está activo,
+        Pega un TikTok o un Reel. MemoryWalk lee el pie de foto, transcribe el audio si el sidecar está activo,
         propone el local y lo busca en Roma. Tú revisas el nombre y la nota, y confirmas para pintarlo.
       </p>
 

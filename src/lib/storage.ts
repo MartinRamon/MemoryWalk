@@ -3,6 +3,9 @@ import type { Memory, Place } from '../types/models.ts'
 
 type MemoryRow = Memory & { blob?: Blob }
 
+// Nombre de la base de datos IndexedDB. Se mantiene 'viaj' a propósito pese al
+// cambio de nombre a MemoryWalk: renombrarlo crearía una BD nueva y vacía, dejando
+// huérfanos los recuerdos y lugares ya guardados en los navegadores existentes.
 const db = new Dexie('viaj') as Dexie & {
   memories: EntityTable<MemoryRow, 'id'>
   places: EntityTable<Place, 'id'>

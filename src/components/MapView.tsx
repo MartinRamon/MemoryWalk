@@ -25,13 +25,13 @@ type MapViewProps = {
 
 function ensureTileProtocol(): void {
   try {
-    removeProtocol('viaj')
+    removeProtocol('mw')
   } catch {
     // Protocol may not exist yet.
   }
-  addProtocol('viaj', async (request, abortController) => {
+  addProtocol('mw', async (request, abortController) => {
     const url = request.url.replace(
-      'viaj://esri/',
+      'mw://esri/',
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/',
     )
     const response = await fetch(url, { signal: abortController.signal })
@@ -41,7 +41,7 @@ function ensureTileProtocol(): void {
 }
 
 function rasterStyle(): StyleSpecification {
-  const tiles = ['viaj://esri/{z}/{y}/{x}']
+  const tiles = ['mw://esri/{z}/{y}/{x}']
 
   return {
     version: 8,
