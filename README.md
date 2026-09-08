@@ -1,4 +1,4 @@
-# Viaj
+# MemoryWalk
 
 Guía personal de turismo: recomendaciones y recuerdos sobre un mapa. Empieza en Roma.
 
