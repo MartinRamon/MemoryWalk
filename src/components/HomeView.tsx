@@ -1,3 +1,4 @@
+import { BackupPanel } from './BackupPanel.tsx'
 import { ConfirmDelete } from './ConfirmDelete.tsx'
 import { Importer } from './Importer.tsx'
 import { MemoryTile } from './MemoryTile.tsx'
@@ -12,6 +13,7 @@ type HomeViewProps = {
   memories: Memory[]
   memoryUrls: Record<string, string>
   importBusy: boolean
+  memoriesLoading: boolean
   onOpenMap: (placeId?: string, options?: { city?: boolean }) => void
   onOpenIngest: () => void
   onOpenMemory: (id: string) => void
@@ -24,6 +26,7 @@ export function HomeView({
   memories,
   memoryUrls,
   importBusy,
+  memoriesLoading,
   onOpenMap,
   onOpenIngest,
   onOpenMemory,
@@ -94,7 +97,11 @@ export function HomeView({
           ) : null}
         </div>
 
-        {memories.length > 0 ? (
+        {memoriesLoading && memories.length === 0 ? (
+          <div className="empty-block">
+            <p className="text-sm text-ink-soft" role="status">Cargando recuerdos…</p>
+          </div>
+        ) : memories.length > 0 ? (
           <div className="memory-grid">
             {memories.map((memory, index) => (
               <MemoryTile
@@ -182,6 +189,8 @@ export function HomeView({
           <p className="mt-8 text-sm text-ink-soft">Ningún lugar coincide con esa búsqueda.</p>
         ) : null}
       </section>
+
+      <BackupPanel />
 
       <ConfirmDelete
         open={deleteTarget != null}

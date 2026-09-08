@@ -8,6 +8,7 @@ export function useMemories(cityId: string, collectionId: string, places: Place[
   const [memories, setMemories] = useState<Memory[]>([])
   const [urls, setUrls] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
+  const [loading, setLoading] = useState(true)
   const urlsRef = useRef(urls)
   urlsRef.current = urls
 
@@ -33,6 +34,7 @@ export function useMemories(cityId: string, collectionId: string, places: Place[
     revokeUnused(nextUrls)
     setUrls(nextUrls)
     setMemories(forCity)
+    setLoading(false)
   }, [cityId, revokeUnused])
 
   useEffect(() => {
@@ -110,5 +112,5 @@ export function useMemories(cityId: string, collectionId: string, places: Place[
     [memories],
   )
 
-  return { memories, placed, pending, urls, busy, importFiles, pinMemory, setCaption, deleteMemory }
+  return { memories, placed, pending, urls, busy, loading, importFiles, pinMemory, setCaption, deleteMemory }
 }

@@ -704,3 +704,21 @@ button:disabled {
     scroll-behavior: auto !important;
   }
 }
+
+.error-boundary {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 2rem 1.25rem;
+  background: var(--color-paper);
+}
+
+.error-boundary__card {
+  max-width: 34rem;
+  width: 100%;
+  background: var(--color-paper-dark);
+  border: 1px solid var(--color-line);
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 10px 40px rgb(0 0 0 / 0.08);
+}

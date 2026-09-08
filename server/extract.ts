@@ -1,5 +1,5 @@
 import { extractCoords, resolveMapsUrl } from './geo.ts'
-import { fetchWithTimeout } from './http.ts'
+import { fetchWithTimeout, HttpError } from './http.ts'
 import type { GeoPoint } from '../src/types/models.ts'
 import type { SourceKind } from '../src/types/ingest.ts'
 
@@ -10,6 +10,9 @@ export type SourcePayload = {
   location: GeoPoint | null
   mapsUrl?: string
 }
+
+const SOURCE_CACHE_MS = 6 * 60 * 60_000
+const sourceCache = new Map<string, { at: number; payload: SourcePayload }>()
 
 function decodeEntities(value: string): string {
   return value
@@ -75,12 +78,17 @@ function isBlockedHost(hostname: string): boolean {
 // Rechaza enlaces no http(s) o que apunten a direcciones internas: evita usar el
 // backend como proxy hacia la red local o los endpoints de metadatos (SSRF).
 function assertPublicUrl(raw: string): URL {
-  const parsed = new URL(raw)
+  let parsed: URL
+  try {
+    parsed = new URL(raw)
+  } catch {
+    throw new HttpError(400, 'El enlace no es una URL válida.')
+  }
   if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-    throw new Error('El enlace tiene que ser http o https.')
+    throw new HttpError(400, 'El enlace tiene que ser http o https.')
   }
   if (isBlockedHost(parsed.hostname)) {
-    throw new Error('Ese enlace apunta a una dirección interna y no se puede leer.')
+    throw new HttpError(400, 'Ese enlace apunta a una dirección interna y no se puede leer.')
   }
   return parsed
 }
@@ -169,6 +177,18 @@ async function fetchWeb(url: string): Promise<string> {
 }
 
 export async function readSource(rawUrl: string): Promise<SourcePayload> {
+  const cacheKey = rawUrl.trim().toLowerCase()
+  const hit = sourceCache.get(cacheKey)
+  if (hit && Date.now() - hit.at < SOURCE_CACHE_MS) return hit.payload
+
+  const payload = await readSourceFresh(rawUrl)
+  // Solo cacheamos lecturas útiles; un fallo transitorio (muro de login, timeout)
+  // no debe quedar fijado durante horas.
+  if (payload.caption || payload.location) sourceCache.set(cacheKey, { at: Date.now(), payload })
+  return payload
+}
+
+async function readSourceFresh(rawUrl: string): Promise<SourcePayload> {
   let url = rawUrl.trim()
   if (!/^https?:\/\//i.test(url)) url = `https://${url}`
   const parsed = assertPublicUrl(url)

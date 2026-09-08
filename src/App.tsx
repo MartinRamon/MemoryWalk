@@ -14,7 +14,7 @@ export default function App() {
   const [mapMemoryId, setMapMemoryId] = useState<string | undefined>()
   const [mapShowCity, setMapShowCity] = useState(false)
   const { places, addPlaces } = usePlaces()
-  const { memories, placed, pending, urls, busy, importFiles, pinMemory, setCaption, deleteMemory } = useMemories(
+  const { memories, placed, pending, urls, busy, loading: memoriesLoading, importFiles, pinMemory, setCaption, deleteMemory } = useMemories(
     ROME.id,
     ROME_FOOD_COLLECTION.id,
     places,
@@ -80,6 +80,7 @@ export default function App() {
       memories={memories}
       memoryUrls={urls}
       importBusy={busy}
+      memoriesLoading={memoriesLoading}
       onOpenMap={openMap}
       onOpenIngest={() => setScreen('ingest')}
       onOpenMemory={openMemory}

@@ -2,29 +2,35 @@ import { createServer } from 'node:http'
 import { env, loadDotEnv } from './env.ts'
 import { readSource } from './extract.ts'
 import { geocodeInRome } from './geo.ts'
-import { readJson, sendEmpty, sendJson } from './http.ts'
+import { HttpError, readJson, sendEmpty, sendJson } from './http.ts'
 import { extractPlace } from './llm.ts'
 import { loadCityPois } from './overpass.ts'
+import { optString, rateLimit, reqLat, reqLng, reqString, resolveCorsOrigin } from './security.ts'
 import { loadWikiSnippet } from './wiki.ts'
 import type { UrlIngestDraft } from '../src/types/ingest.ts'
 
 loadDotEnv()
 
 const PORT = Number(env('PORT', '8787'))
+const MINUTE = 60_000
 
 function pathnameOf(url: string): string {
   return new URL(url, `http://127.0.0.1:${PORT}`).pathname
 }
 
 createServer(async (req, res) => {
+  const cors = resolveCorsOrigin(req)
   try {
     const method = req.method ?? 'GET'
     const path = pathnameOf(req.url ?? '/')
 
     if (method === 'OPTIONS') {
-      sendEmpty(res, 204)
+      sendEmpty(res, 204, cors)
       return
     }
+
+    // Tope global por IP; las rutas caras añaden su propio límite más estricto.
+    rateLimit(req, 'global', 240, MINUTE)
 
     if (method === 'GET' && (path === '/' || path === '/api')) {
       sendJson(res, 200, {
@@ -34,7 +40,7 @@ createServer(async (req, res) => {
         health: '/api/health',
         city: '/api/city',
         wiki: '/api/wiki',
-      })
+      }, cors)
       return
     }
 
@@ -43,70 +49,63 @@ createServer(async (req, res) => {
         ok: true,
         grok: Boolean(env('XAI_API_KEY')),
         model: env('XAI_MODEL', 'grok-4.3'),
-      })
+      }, cors)
       return
     }
 
-    if (method === 'GET' && path === '/api/geocode') {
-      const query = new URL(req.url ?? '/', `http://127.0.0.1:${PORT}`)
-      const q = query.searchParams.get('q') ?? ''
-      const neighborhood = query.searchParams.get('neighborhood') ?? undefined
+    if (path === '/api/geocode' && (method === 'GET' || method === 'POST')) {
+      rateLimit(req, 'geocode', 40, MINUTE)
+      let q: string
+      let neighborhood: string | undefined
+      if (method === 'GET') {
+        const query = new URL(req.url ?? '/', `http://127.0.0.1:${PORT}`)
+        q = reqString(query.searchParams.get('q'), 'q', 200)
+        neighborhood = optString(query.searchParams.get('neighborhood'), 'neighborhood', 120)
+      } else {
+        const body = await readJson<{ q?: unknown; neighborhood?: unknown }>(req)
+        q = reqString(body.q, 'q', 200)
+        neighborhood = optString(body.neighborhood, 'neighborhood', 120)
+      }
       const location = await geocodeInRome(q, neighborhood)
       if (!location) {
-        sendJson(res, 404, { error: 'No encontramos coordenadas en Roma para ese nombre.' })
+        sendJson(res, 404, { error: 'No encontramos coordenadas en Roma para ese nombre.' }, cors)
         return
       }
-      sendJson(res, 200, { location, geocodeSource: 'nominatim' })
-      return
-    }
-
-    if (method === 'POST' && path === '/api/geocode') {
-      const body = await readJson<{ q?: string; neighborhood?: string }>(req)
-      const location = await geocodeInRome(body.q ?? '', body.neighborhood)
-      if (!location) {
-        sendJson(res, 404, { error: 'No encontramos coordenadas en Roma para ese nombre.' })
-        return
-      }
-      sendJson(res, 200, { location, geocodeSource: 'nominatim' })
+      sendJson(res, 200, { location, geocodeSource: 'nominatim' }, cors)
       return
     }
 
     if (method === 'GET' && path === '/api/city') {
+      rateLimit(req, 'city', 60, MINUTE)
       const query = new URL(req.url ?? '/', `http://127.0.0.1:${PORT}`)
-      const south = Number(query.searchParams.get('south'))
-      const west = Number(query.searchParams.get('west'))
-      const north = Number(query.searchParams.get('north'))
-      const east = Number(query.searchParams.get('east'))
-      if (![south, west, north, east].every(Number.isFinite)) {
-        sendJson(res, 400, { error: 'Falta el recuadro del mapa.' })
-        return
-      }
+      const south = reqLat(Number(query.searchParams.get('south')), 'south')
+      const west = reqLng(Number(query.searchParams.get('west')), 'west')
+      const north = reqLat(Number(query.searchParams.get('north')), 'north')
+      const east = reqLng(Number(query.searchParams.get('east')), 'east')
       const significant = query.searchParams.get('significant') === '1'
       const pois = await loadCityPois({ south, west, north, east }, significant)
-      sendJson(res, 200, { pois })
+      sendJson(res, 200, { pois }, cors)
       return
     }
 
     if (method === 'GET' && path === '/api/wiki') {
+      rateLimit(req, 'wiki', 60, MINUTE)
       const query = new URL(req.url ?? '/', `http://127.0.0.1:${PORT}`)
-      const wikipedia = query.searchParams.get('wikipedia') ?? undefined
-      const wikidata = query.searchParams.get('wikidata') ?? undefined
+      const wikipedia = optString(query.searchParams.get('wikipedia'), 'wikipedia', 300)
+      const wikidata = optString(query.searchParams.get('wikidata'), 'wikidata', 40)
       if (!wikipedia && !wikidata) {
-        sendJson(res, 400, { error: 'Falta wikipedia o wikidata.' })
+        sendJson(res, 400, { error: 'Falta wikipedia o wikidata.' }, cors)
         return
       }
       const snippet = await loadWikiSnippet({ wikipedia, wikidata })
-      sendJson(res, 200, { snippet })
+      sendJson(res, 200, { snippet }, cors)
       return
     }
 
     if (method === 'POST' && path === '/api/ingest/url') {
-      const body = await readJson<{ url?: string }>(req)
-      const raw = body.url?.trim() ?? ''
-      if (!raw) {
-        sendJson(res, 400, { error: 'Pega un enlace de TikTok, Instagram o Maps.' })
-        return
-      }
+      rateLimit(req, 'ingest', 15, MINUTE)
+      const body = await readJson<{ url?: unknown }>(req)
+      const raw = reqString(body.url, 'url', 2048)
 
       const source = await readSource(raw)
       if (!source.caption && !source.location) {
@@ -115,7 +114,7 @@ createServer(async (req, res) => {
             source.kind === 'instagram'
               ? 'Instagram no ha dejado leer el pie de foto. Prueba un Reel público o un TikTok.'
               : 'No hemos podido leer ese enlace.',
-        })
+        }, cors)
         return
       }
 
@@ -131,7 +130,7 @@ createServer(async (req, res) => {
         sendJson(res, 422, {
           error: 'El vídeo no nombra un local claro. Prueba otro enlace.',
           caption: source.caption,
-        })
+        }, cors)
         return
       }
 
@@ -159,14 +158,19 @@ createServer(async (req, res) => {
           ? undefined
           : 'No encontramos el punto en Roma. Corrige el nombre y confirma; volveremos a buscar.',
       }
-      sendJson(res, 200, { draft })
+      sendJson(res, 200, { draft }, cors)
       return
     }
 
-    sendJson(res, 404, { error: 'Ruta no encontrada' })
+    sendJson(res, 404, { error: 'Ruta no encontrada' }, cors)
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Error interno'
-    sendJson(res, 500, { error: message })
+    if (error instanceof HttpError) {
+      sendJson(res, error.status, { error: error.message }, cors)
+      return
+    }
+    // Errores inesperados: se registran en el servidor, pero no se filtra el detalle al cliente.
+    console.error('viaj-api error:', error)
+    sendJson(res, 500, { error: 'Error interno del servidor.' }, cors)
   }
 }).listen(PORT, '127.0.0.1', () => {
   console.log(`Viaj API http://127.0.0.1:${PORT}`)

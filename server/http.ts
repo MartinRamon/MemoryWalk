@@ -1,22 +1,36 @@
 import type { IncomingMessage, ServerResponse } from 'node:http'
 
-export function sendJson(res: ServerResponse, status: number, body: unknown): void {
+/** Error con código HTTP y mensaje seguro para mostrar al cliente. */
+export class HttpError extends Error {
+  status: number
+  constructor(status: number, message: string) {
+    super(message)
+    this.name = 'HttpError'
+    this.status = status
+  }
+}
+
+function corsHeaders(origin?: string): Record<string, string> {
+  if (!origin) return {}
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    Vary: 'Origin',
+  }
+}
+
+export function sendJson(res: ServerResponse, status: number, body: unknown, corsOrigin?: string): void {
   const json = JSON.stringify(body)
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    ...corsHeaders(corsOrigin),
   })
   res.end(json)
 }
 
-export function sendEmpty(res: ServerResponse, status: number): void {
-  res.writeHead(status, {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
-  })
+export function sendEmpty(res: ServerResponse, status: number, corsOrigin?: string): void {
+  res.writeHead(status, corsHeaders(corsOrigin))
   res.end()
 }
 
@@ -25,12 +39,16 @@ export async function readJson<T>(req: IncomingMessage, maxBytes = 1_000_000): P
   let total = 0
   for await (const chunk of req) {
     total += (chunk as Buffer).length
-    if (total > maxBytes) throw new Error('El cuerpo de la petición es demasiado grande.')
+    if (total > maxBytes) throw new HttpError(413, 'El cuerpo de la petición es demasiado grande.')
     chunks.push(chunk as Buffer)
   }
   const raw = Buffer.concat(chunks).toString('utf8').trim()
   if (!raw) return {} as T
-  return JSON.parse(raw) as T
+  try {
+    return JSON.parse(raw) as T
+  } catch {
+    throw new HttpError(400, 'El cuerpo de la petición no es JSON válido.')
+  }
 }
 
 export async function fetchWithTimeout(url: string, init: RequestInit = {}, ms = 12_000): Promise<Response> {

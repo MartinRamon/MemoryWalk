@@ -50,6 +50,10 @@ function wait(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+const GEOCODE_OK_MS = 24 * 60 * 60_000
+const GEOCODE_MISS_MS = 10 * 60_000
+const geocodeCache = new Map<string, { at: number; location: GeoPoint | null }>()
+
 let nominatimTail = Promise.resolve()
 
 async function nominatimOnce(query: string): Promise<GeoPoint | null> {
@@ -81,12 +85,21 @@ export async function geocodeInRome(query: string, neighborhood?: string): Promi
   const needle = [query.trim(), neighborhood?.trim()].filter(Boolean).join(' ')
   if (!needle) return null
 
+  const key = needle.toLowerCase()
+  const hit = geocodeCache.get(key)
+  if (hit) {
+    const ttl = hit.location ? GEOCODE_OK_MS : GEOCODE_MISS_MS
+    if (Date.now() - hit.at < ttl) return hit.location
+  }
+
   const run = nominatimTail.then(() => nominatimOnce(needle))
   nominatimTail = run.then(
     () => wait(1100),
     () => wait(1100),
   )
-  return run
+  const location = await run
+  geocodeCache.set(key, { at: Date.now(), location })
+  return location
 }
 
 export async function resolveMapsUrl(url: string): Promise<GeoPoint | null> {
